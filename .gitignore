@@ -3,6 +3,7 @@ _context/
 
 # 작업 산출물 (번들: 대본/이미지/음성/영상)
 _assets/
+munje/
 
 # 생성 결과물은 GitHub에 올리지 않음 — 입력(script/images)만 추적.
 # (어느 위치의 번들이든 audio/subtitles/draft/clips 폴더는 제외)

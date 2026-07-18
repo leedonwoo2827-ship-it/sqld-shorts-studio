@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 os.environ.setdefault("VOICEWRIGHT_VOICE_MAP", str(ROOT / "config" / "voice_map.yaml"))
 os.environ.setdefault("VOICEWRIGHT_PRONUNCIATION_MAP", str(ROOT / "config" / "pronunciation_map.yaml"))
 os.environ.setdefault("VOICEWRIGHT_ASSETS_DIR", str(ROOT / "assets"))
-os.environ.setdefault("VOICEWRIGHT_WORKSPACE", str(ROOT / "_assets"))
+os.environ.setdefault("VOICEWRIGHT_WORKSPACE", os.environ.get("MF_OUTPUT_DIR") or str(ROOT / "munje"))
 
 import logging  # noqa: E402
 

@@ -20,8 +20,8 @@ ffmpeg 합성을 그대로 태운다. 과목 무관(SQLD·수학·영어…), `t
 
 CLI 로 슬라이드만 미리 볼 수도 있다:
 
-    python -m slides _assets/ch01_bundle           # images/ + clips/
-    python -m slides _assets/ch01_bundle --motion off   # 정적 PNG만
+    python -m slides munje/ch01           # images/ + clips/
+    python -m slides munje/ch01 --motion off   # 정적 PNG만
 
 ## lesson JSON 스키마
 

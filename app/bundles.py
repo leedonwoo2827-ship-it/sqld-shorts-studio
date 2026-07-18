@@ -1,21 +1,25 @@
-"""번들(_assets/chNN_bundle) 탐색·생성·상태 점검 헬퍼.
+"""번들(munje/chNN) 탐색·생성·상태 점검 헬퍼.
 
-번들 규약(mp4maker 기준):
-    chNN_bundle/
+출력 루트는 루트의 munje/ 폴더(환경변수 MF_OUTPUT_DIR 로 변경). 그 안에 챕터 폴더:
+    munje/chNN/
       script/     chNN_script.json
       images/     chNN_XX_*.{png,jpg,jpeg,webp}
       audio/      chNN_XX_narration.{wav,mp3,m4a,flac}
       subtitles/  chNN_XX_narration.srt  (+ chNN.srt)
       draft/      chNN_final.mp4
+(예전 chNN_bundle 폴더명도 하위 호환으로 인식)
 """
 from __future__ import annotations
 
 import json
+import os
 import re
 from pathlib import Path
 
 MEDIAFORGE_ROOT = Path(__file__).resolve().parents[1]
-ASSETS_DIR = MEDIAFORGE_ROOT / "_assets"
+# 출력 루트(루트에 보이는 폴더, 기본 munje/) — 그 안에 ch01, ch02… 번들 폴더.
+# 환경변수 MF_OUTPUT_DIR 로 변경 가능.
+ASSETS_DIR = Path(os.environ.get("MF_OUTPUT_DIR") or (MEDIAFORGE_ROOT / "munje"))
 
 IMG_EXTS = (".png", ".jpg", ".jpeg", ".webp")
 AUD_EXTS = (".wav", ".mp3", ".m4a", ".flac")
@@ -30,7 +34,10 @@ def _chap(bundle_dir: Path) -> str | None:
 def list_bundles() -> list[str]:
     if not ASSETS_DIR.is_dir():
         return []
-    return sorted(p.name for p in ASSETS_DIR.iterdir() if p.is_dir() and p.name.endswith("_bundle"))
+    # 번들 = 출력 루트 안의 폴더(ch01…). '_' 로 시작하는 폴더(_book 등)는 제외.
+    # 하위 호환: 예전 'chNN_bundle' 폴더도 그대로 인식.
+    return sorted(p.name for p in ASSETS_DIR.iterdir()
+                  if p.is_dir() and not p.name.startswith("_"))
 
 
 def bundle_path(name: str) -> Path:
@@ -40,9 +47,13 @@ def bundle_path(name: str) -> Path:
 
 
 def create_bundle(name: str) -> Path:
-    """번들 폴더 + 하위 폴더 골격 생성. 이름은 chNN_bundle 형태 권장."""
-    if not name.endswith("_bundle"):
-        name = f"{name}_bundle"
+    """번들 폴더 + 하위 폴더 골격 생성. 이름은 chNN 형태 권장(munje/ch01 …).
+
+    '_bundle' 접미사를 붙여 오면 떼어내 chNN 으로 만든다(하위 호환).
+    """
+    name = name.strip()
+    if name.endswith("_bundle"):
+        name = name[: -len("_bundle")]
     root = bundle_path(name)
     for sub in SUBDIRS:
         (root / sub).mkdir(parents=True, exist_ok=True)
