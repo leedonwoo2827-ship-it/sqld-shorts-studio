@@ -58,3 +58,27 @@ def render_clip(base: Image.Image, elements, out_path: Path, duration: float,
         return out_path
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+def render_countdown_clip(frames_rgb, out_path: Path, fps: int = 30,
+                          log_path: Path | None = None) -> Path:
+    """RGB 프레임 리스트(각 1초씩)를 카운트다운 클립으로. 5,4,3,2,1 → 5초."""
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out_path.parent / f".cdtmp_{out_path.stem}"
+    tmp.mkdir(parents=True, exist_ok=True)
+    try:
+        for i, im in enumerate(frames_rgb):
+            im.save(tmp / f"f{i:03d}.png")
+        cmd = [
+            "ffmpeg", "-y",
+            "-framerate", "1", "-i", str(tmp / "f%03d.png"),
+            "-vf", f"fps={fps},format=yuv420p",
+            "-c:v", "libx264", "-pix_fmt", "yuv420p",
+            "-preset", "veryfast", "-crf", "20",
+            "-movflags", "+faststart", str(out_path),
+        ]
+        run_ffmpeg(cmd, log_path=log_path)
+        return out_path
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)

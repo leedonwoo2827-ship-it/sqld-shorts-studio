@@ -81,15 +81,27 @@ def generate_bundle_slides(
             _emit(on_progress, {"type": "log", "line": f"[slides] {msg}"})
             continue
         try:
-            base, elements = layout.build(slide, pal)
             img_name = scene.get("image_filename") or f"{cid}_{idx:02d}_slide.png"
+            clip_name = scene.get("video_filename") or f"{cid}_{idx:02d}.mp4"
+            if slide.get("kind") == "countdown":
+                seconds = int(slide.get("seconds") or 5)
+                cbase = layout.build_countdown_base(slide, pal)
+                layout.draw_countdown_number(cbase, seconds, pal).save(images_dir / img_name)
+                result["images"].append(img_name)
+                _emit(on_progress, {"type": "log", "line": f"[slides] 씬{idx} 카운트다운 -> {img_name}"})
+                if use_motion:
+                    frames = [layout.draw_countdown_number(cbase, n, pal)
+                              for n in range(seconds, 0, -1)]
+                    animate.render_countdown_clip(frames, clips_dir / clip_name)
+                    result["clips"].append(clip_name)
+                continue
+            base, elements = layout.build(slide, pal)
             layout.compose_static(base, elements).save(images_dir / img_name)
             result["images"].append(img_name)
             _emit(on_progress, {"type": "log", "line": f"[slides] 씬{idx} 이미지 -> {img_name}"})
             if use_motion:
                 hint = float(scene.get("narration_seconds") or 6)
                 dur = round(hint * 1.25) + 5
-                clip_name = scene.get("video_filename") or f"{cid}_{idx:02d}.mp4"
                 animate.render_clip(base, elements, clips_dir / clip_name, dur)
                 result["clips"].append(clip_name)
                 _emit(on_progress, {"type": "log", "line": f"[slides] 씬{idx} 클립 -> {clip_name}"})

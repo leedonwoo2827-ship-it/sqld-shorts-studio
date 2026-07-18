@@ -37,7 +37,7 @@ from . import bundles
 from .jobs import Job, get_registry
 from .render import probe as mp4_probe
 from .render import render as mp4_render
-from .synth import save_scene_cues, synthesize
+from .synth import save_scene_cues, synthesize, write_silence
 from .synth import synth_scene_text as synthesize_scene_text
 
 router = APIRouter()
@@ -824,10 +824,13 @@ async def _job_synth_ai(job: Job, name: str, req: SynthAiReq) -> None:
         total = len(targets)
         for i, sc in enumerate(targets):
             idx = int(sc.get("scene") or (i + 1))
+            job.completed, job.total = i, total
+            if sc.get("silent"):
+                await write_silence(root, idx, float(sc.get("narration_seconds") or 5))
+                continue
             orig = (sc.get("narration_text") or "").strip()
             if not orig:
                 continue
-            job.completed, job.total = i, total
             job.stage = f"AI 발음+음성 (씬 {idx})"
             reading = await asyncio.to_thread(pronounce.to_reading, orig, req.model)
             job.add_log(f"씬 {idx}: {reading[:40]}")

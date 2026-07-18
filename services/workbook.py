@@ -28,6 +28,8 @@ _CIRCLED = "①②③④⑤⑥⑦⑧⑨⑩"
 # 문제집 영상 기본 음성 = 또렷한 강의체(다큐 M5 대신). 파일 `voice`/`speed` 로 덮어씀.
 WORKBOOK_DEFAULT_VOICE = "F2"
 WORKBOOK_DEFAULT_SPEED = 1.05
+# 문제→해설 사이 '생각할 시간' 카운트다운(초). lesson `countdown_seconds` 로 조정, 0=끔.
+DEFAULT_COUNTDOWN = 5
 
 
 def _source_ref(b: dict, default_round: str) -> str:
@@ -205,21 +207,30 @@ def lesson_to_script(doc: dict, chapter: Optional[int] = None) -> dict:
     default_round = str(doc.get("round") or "").strip()
     voice = (doc.get("voice") or WORKBOOK_DEFAULT_VOICE)
     speed = doc.get("speed", WORKBOOK_DEFAULT_SPEED)
+    cd = int(doc.get("countdown_seconds", DEFAULT_COUNTDOWN))
 
     scenes: list[dict] = []
 
-    def add_scene(title: str, narration: str, slug: str, slide: dict) -> None:
+    def add_scene(title: str, narration: str, slug: str, slide: dict,
+                  *, silent: bool = False, seconds: int | None = None) -> None:
         idx = len(scenes) + 1
-        narration = (narration or "").strip() or title or "…"
-        scenes.append({
+        scene = {
             "scene": idx,
             "title": title,
-            "narration_text": narration,
-            "narration_seconds": _secs(narration),
             "image_filename": f"{cid}_{idx:02d}_{slug}.png",
             "video_filename": f"{cid}_{idx:02d}.mp4",
             "slide": slide,
-        })
+        }
+        if silent:
+            # 무음 씬(카운트다운 등): TTS 없이 seconds 길이의 무음. 자막 없음.
+            scene["narration_text"] = ""
+            scene["narration_seconds"] = int(seconds or 5)
+            scene["silent"] = True
+        else:
+            narration = (narration or "").strip() or title or "…"
+            scene["narration_text"] = narration
+            scene["narration_seconds"] = _secs(narration)
+        scenes.append(scene)
 
     for b in doc.get("blocks") or []:
         kind = b.get("kind")
@@ -271,14 +282,23 @@ def lesson_to_script(doc: dict, chapter: Optional[int] = None) -> dict:
             )
             if spp <= 1:
                 continue
-            # 씬 B — 정답·해설 (길면 페이지 분할)
+            # 씬 B0 — 생각할 시간(카운트다운, 무음)
+            if cd > 0:
+                add_scene(
+                    "생각할 시간", "", _slug("t", num),
+                    {"kind": "countdown", "seconds": cd, "number": num, "question": question},
+                    silent=True, seconds=cd,
+                )
+            # 씬 B — 정답·해설
+            #   슬라이드엔 간결한 explanation, 음성은 설명투 explanation_speech(있으면).
             explanation = (b.get("explanation") or "").strip()
+            speech = (b.get("explanation_speech") or "").strip()
             custom = (b.get("narration_answer") or "").strip()
             pages = _paginate(explanation) if not custom else [explanation]
             n_pages = len(pages)
             for pi, page in enumerate(pages):
                 if pi == 0:
-                    narr = custom or _answer_narration(b, page)
+                    narr = custom or speech or _answer_narration(b, page)
                 else:
                     narr = page
                 title = f"정답 및 해설 {num}" if num is not None else "정답 및 해설"

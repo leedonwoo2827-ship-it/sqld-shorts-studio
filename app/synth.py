@@ -64,49 +64,88 @@ async def synthesize(
     발음 교정은 config/pronunciation_map.yaml(웹 UI에서 편집) 를 합성 직전에
     자동 적용한다(engine 내부, 핫리로드). 단어 추가 후 그 씬만 재생성하면 반영됨.
     """
+    import json as _json
+
+    import numpy as np
+
     bundle = Path(bundle_dir).resolve()
     script_path = find_script(bundle)
     script = parse_script(script_path.read_bytes())
 
-    if only:
-        wanted = set(int(n) for n in only)
-        filtered = deepcopy(script)
-        filtered.scenes = [sc for sc in script.scenes if sc.scene in wanted]
-        if not filtered.scenes:
-            raise ValueError(f"--only {sorted(wanted)} 에 해당하는 씬이 대본에 없습니다.")
-        run_script = filtered
-    else:
-        run_script = script
+    # 무음 씬(카운트다운 등): TTS 없이 narration_seconds 길이의 무음 wav 로 만든다.
+    raw = _json.loads(script_path.read_text(encoding="utf-8"))
+    silent_map = {int(s.get("scene")): int(s.get("narration_seconds") or 5)
+                  for s in (raw.get("scenes") or []) if s.get("silent")}
+
+    wanted = set(int(n) for n in only) if only else None
+    run_script = deepcopy(script)
+    run_script.scenes = [sc for sc in script.scenes
+                         if (wanted is None or sc.scene in wanted) and sc.scene not in silent_map]
+    if wanted is not None and not run_script.scenes and not (wanted & set(silent_map)):
+        raise ValueError(f"--only {sorted(wanted)} 에 해당하는 씬이 대본에 없습니다.")
 
     engine = await Engine.get()
-    result = await run_batch(
-        engine=engine,
-        script=run_script,
-        chapter_id_explicit=_bundle_chapter_id(bundle),
-        filename_hint=script_path.name,
-        output_root=bundle,
-        voice_override=voice_override,
-        speed=speed,
-        total_step=total_step,
-        on_progress=on_progress,
-        flat_layout=True,
-    )
+    chap = _bundle_chapter_id(bundle)
+    files: list = []
+    warnings: list = []
+    chapter_id = chap
+    if run_script.scenes:
+        result = await run_batch(
+            engine=engine,
+            script=run_script,
+            chapter_id_explicit=chap,
+            filename_hint=script_path.name,
+            output_root=bundle,
+            voice_override=voice_override,
+            speed=speed,
+            total_step=total_step,
+            on_progress=on_progress,
+            flat_layout=True,
+        )
+        files, warnings, chapter_id = result.files, result.warnings, result.chapter_id
+
+    # 무음 씬 wav 생성 (TTS 우회)
+    if silent_map and chap is not None:
+        audio_dir = bundle / "audio"
+        audio_dir.mkdir(parents=True, exist_ok=True)
+        sr = engine.sample_rate
+        for idx, secs in silent_map.items():
+            if wanted is not None and idx not in wanted:
+                continue
+            samples = np.zeros(int(max(1, secs) * sr), dtype=np.float32)
+            write_wav(audio_dir / narration_filename(chap, idx), samples, sr)
 
     # 통합 SRT는 항상 디스크의 모든 per-scene SRT/WAV 기준으로 다시 만든다.
-    # (부분 재생성 시 run_batch는 그 씬들만으로 통합 SRT를 만들기 때문에 보정 필요.
-    #  사용자가 검수 탭에서 손본 per-scene SRT 타임코드도 이때 반영된다.)
     chapter_srt = rebuild_chapter_srt(bundle)
 
     return {
-        "chapter": result.chapter_id,
+        "chapter": chapter_id,
         "bundle": str(bundle),
         "audio_dir": str(bundle / "audio"),
         "subtitles_dir": str(bundle / "subtitles"),
-        "files": result.files,
+        "files": files,
         "chapter_srt": str(chapter_srt) if chapter_srt else None,
-        "warnings": result.warnings,
-        "scenes_done": [sc.scene for sc in run_script.scenes],
+        "warnings": warnings,
+        "scenes_done": [sc.scene for sc in run_script.scenes] + sorted(silent_map),
     }
+
+
+async def write_silence(bundle_dir: str | Path, scene: int, seconds: float) -> dict:
+    """무음 씬(카운트다운 등)의 오디오를 seconds 길이의 무음 wav 로 만든다."""
+    import numpy as np
+    bundle = Path(bundle_dir).resolve()
+    chap = _bundle_chapter_id(bundle)
+    if chap is None:
+        raise ValueError(f"번들 이름에서 챕터를 찾지 못함: {bundle.name}")
+    engine = await Engine.get()
+    sr = engine.sample_rate
+    audio_dir = bundle / "audio"
+    audio_dir.mkdir(parents=True, exist_ok=True)
+    samples = np.zeros(int(max(1.0, seconds) * sr), dtype=np.float32)
+    wav_path = audio_dir / narration_filename(chap, int(scene))
+    write_wav(wav_path, samples, sr)
+    return {"scene": int(scene), "silent": True, "duration": round(float(seconds), 2),
+            "audio_file": wav_path.name}
 
 
 def _wav_duration(path: Path) -> float:

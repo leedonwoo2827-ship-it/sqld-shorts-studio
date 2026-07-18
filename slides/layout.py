@@ -356,6 +356,36 @@ def build_answer(slide: dict, pal: dict):
     return base, elements
 
 
+def build_countdown_base(slide: dict, pal: dict) -> Image.Image:
+    """카운트다운 씬 배경 — 칩 + 문제(흐리게) + '정답을 생각해 보세요'. 숫자는 프레임별로."""
+    base = _gradient(pal)
+    _, y = _chip(base, "생각할 시간", pal)
+    d = ImageDraw.Draw(base)
+    q = (slide.get("question") or "").strip()
+    if q:
+        qfont, qlines, qlh = fit_text(q, 40, 26, CONTENT_W, 150)
+        draw_lines(d, qlines[:2], PAD_X, y + 20, qfont, pal["sub"] + (200,), qlh)
+    pfont = load_font(46, bold=True)
+    label = "정답을 생각해 보세요"
+    lw = int(_measure(label, pfont))
+    d.text(((W - lw) // 2, 300), label, font=pfont, fill=pal["text"] + (255,))
+    return base
+
+
+def draw_countdown_number(base: Image.Image, n: int, pal: dict) -> Image.Image:
+    """base 위에 큰 숫자 n(원 안)을 그린 RGB 프레임."""
+    img = base.copy()
+    d = ImageDraw.Draw(img)
+    cx, cy, r = W // 2, 650, 175
+    d.ellipse((cx - r, cy - r, cx + r, cy + r), outline=pal["accent"] + (255,), width=10)
+    nf = load_font(280, bold=True)
+    s = str(n)
+    bb = d.textbbox((0, 0), s, font=nf)
+    tw, th = bb[2] - bb[0], bb[3] - bb[1]
+    d.text((cx - tw // 2 - bb[0], cy - th // 2 - bb[1]), s, font=nf, fill=pal["accent"] + (255,))
+    return img.convert("RGB")
+
+
 _BUILDERS = {
     "section": build_section,
     "concept": build_concept,
