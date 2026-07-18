@@ -1,0 +1,256 @@
+{
+  "version": "1.0",
+  "kind": "lesson",
+  "chapter": 3,
+  "title": "3과 · SQL 기본과 활용",
+  "subject": "SQLD",
+  "theme": "sqld",
+  "scenes_per_problem": 2,
+  "include_lecture": false,
+  "blocks": [
+    {
+      "kind": "section",
+      "title": "핵심 요약",
+      "subtitle": "SQL 활용 빈출 포인트",
+      "narration": "문제 풀이 전에 에스큐엘의 활용 빈출 포인트를 표로 정리하겠습니다."
+    },
+    {
+      "kind": "table",
+      "heading": "SELECT 문 논리적 실행 순서",
+      "columns": ["순서", "절"],
+      "rows": [
+        ["1", "FROM"],
+        ["2", "WHERE"],
+        ["3", "GROUP BY"],
+        ["4", "HAVING"],
+        ["5", "SELECT"],
+        ["6", "ORDER BY"]
+      ],
+      "narration": "셀렉트 문은 프롬, 웨어, 그룹바이, 해빙, 셀렉트, 오더바이 순으로 논리적으로 실행됩니다. 별칭을 웨어 절에서 못 쓰는 이유가 여기 있습니다."
+    },
+    {
+      "kind": "table",
+      "heading": "JOIN 종류",
+      "columns": ["종류", "반환 행"],
+      "rows": [
+        ["INNER JOIN", "조인 조건을 만족하는 행"],
+        ["LEFT OUTER", "왼쪽 전체 + 매칭되는 오른쪽"],
+        ["RIGHT OUTER", "오른쪽 전체 + 매칭되는 왼쪽"],
+        ["FULL OUTER", "양쪽 전체(매칭+비매칭)"],
+        ["CROSS JOIN", "카티션곱(모든 조합)"]
+      ],
+      "narration": "조인은 이너, 레프트, 라이트, 풀 아우터, 크로스로 나뉩니다. 아우터 조인은 매칭되지 않는 행도 포함한다는 점이 핵심입니다."
+    },
+    {
+      "kind": "section",
+      "title": "문제 풀이 (15문항)",
+      "subtitle": "SQL 기본·활용 집중 연습",
+      "narration": "이번 편에서는 에스큐엘의 기본과 활용 열다섯 문제를 풀어보겠습니다."
+    },
+    {
+      "kind": "problem",
+      "number": 1,
+      "type": "multiple_choice",
+      "question": "SELECT 문에서 중복 행을 제거하는 키워드는?",
+      "choices": ["UNIQUE", "DISTINCT", "ONLY", "GROUP"],
+      "answer": "②",
+      "answer_index": 1,
+      "explanation": "DISTINCT는 조회 결과의 중복 행을 제거한다.",
+      "difficulty": "하",
+      "tags": ["SELECT"]
+    },
+    {
+      "kind": "problem",
+      "number": 2,
+      "type": "multiple_choice",
+      "question": "WHERE 절에서 NULL을 비교할 때 사용하는 연산자는?",
+      "choices": ["= NULL", "IS NULL", "== NULL", "EQUALS NULL"],
+      "answer": "②",
+      "answer_index": 1,
+      "explanation": "NULL은 값이 아니므로 = 로 비교할 수 없고 IS NULL / IS NOT NULL을 사용한다.",
+      "difficulty": "하",
+      "tags": ["NULL"]
+    },
+    {
+      "kind": "problem",
+      "number": 3,
+      "type": "multiple_choice",
+      "question": "그룹별 집계 결과에 조건을 거는 절은?",
+      "choices": ["WHERE", "HAVING", "ORDER BY", "GROUP"],
+      "answer": "②",
+      "answer_index": 1,
+      "explanation": "HAVING은 GROUP BY로 집계한 결과에 조건을 건다. WHERE는 집계 전 행에 조건을 건다.",
+      "difficulty": "중",
+      "tags": ["GROUP BY", "HAVING"]
+    },
+    {
+      "kind": "problem",
+      "number": 4,
+      "type": "multiple_choice",
+      "question": "다음 SELECT 문의 절 중 논리적으로 가장 먼저 실행되는 것은?",
+      "choices": ["SELECT", "WHERE", "FROM", "ORDER BY"],
+      "answer": "③",
+      "answer_index": 2,
+      "explanation": "SELECT 문의 논리적 실행 순서는 FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY이다. FROM이 가장 먼저 수행된다.",
+      "difficulty": "중",
+      "tags": ["실행 순서"]
+    },
+    {
+      "kind": "problem",
+      "number": 5,
+      "type": "multiple_choice",
+      "question": "두 집합의 교집합을 반환하는 집합 연산자는?",
+      "choices": ["UNION", "UNION ALL", "INTERSECT", "MINUS"],
+      "answer": "③",
+      "answer_index": 2,
+      "explanation": "INTERSECT는 두 결과 집합의 공통(교집합) 행을 반환한다.",
+      "difficulty": "중",
+      "tags": ["집합 연산"]
+    },
+    {
+      "kind": "problem",
+      "number": 6,
+      "type": "multiple_choice",
+      "question": "UNION과 UNION ALL의 차이로 옳은 것은?",
+      "choices": [
+        "UNION은 중복을 제거하고 정렬하지만 UNION ALL은 중복을 그대로 둔다",
+        "UNION ALL은 교집합, UNION은 합집합이다",
+        "둘 다 중복을 제거한다",
+        "UNION ALL이 항상 더 느리다"
+      ],
+      "answer": "①",
+      "answer_index": 0,
+      "explanation": "UNION은 중복 제거 후 정렬 과정이 있어 상대적으로 느리고, UNION ALL은 중복 제거 없이 모두 반환하여 일반적으로 더 빠르다.",
+      "difficulty": "중",
+      "tags": ["집합 연산", "UNION"]
+    },
+    {
+      "kind": "problem",
+      "number": 7,
+      "type": "multiple_choice",
+      "question": "집계 함수 COUNT에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "COUNT(*)는 NULL을 제외한 행 수를 센다",
+        "COUNT(*)는 NULL을 포함한 전체 행 수를 센다",
+        "COUNT(컬럼)은 NULL을 포함하여 센다",
+        "COUNT(*)와 COUNT(컬럼)의 결과는 항상 같다"
+      ],
+      "answer": "②",
+      "answer_index": 1,
+      "explanation": "COUNT(*)는 NULL 포함 전체 행 수, COUNT(컬럼)은 해당 컬럼이 NULL이 아닌 행 수를 센다.",
+      "difficulty": "하",
+      "tags": ["집계 함수"]
+    },
+    {
+      "kind": "problem",
+      "number": 8,
+      "type": "multiple_choice",
+      "question": "NULL을 다른 값으로 치환하는 함수(Oracle)는?",
+      "choices": ["NVL", "IFNULL", "ISNULL", "DECODE만 가능"],
+      "answer": "①",
+      "answer_index": 0,
+      "explanation": "Oracle에서는 NVL(expr, 대체값)을 사용한다. COALESCE도 가능하지만 보기 중 대표적 함수는 NVL이다.",
+      "difficulty": "중",
+      "tags": ["NULL 함수"]
+    },
+    {
+      "kind": "problem",
+      "number": 9,
+      "type": "multiple_choice",
+      "question": "OUTER JOIN에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "조인 조건을 만족하는 행만 반환한다",
+        "매칭되지 않는 쪽은 NULL로 채워 함께 반환한다",
+        "항상 카티션곱을 반환한다",
+        "GROUP BY가 반드시 필요하다"
+      ],
+      "answer": "②",
+      "answer_index": 1,
+      "explanation": "OUTER JOIN은 기준 테이블의 모든 행을 반환하고, 매칭되지 않는 상대 컬럼은 NULL로 채운다. 조건 만족 행만 반환하는 것은 INNER JOIN이다.",
+      "difficulty": "중",
+      "tags": ["JOIN"]
+    },
+    {
+      "kind": "problem",
+      "number": 10,
+      "type": "multiple_choice",
+      "question": "GROUP BY의 소계·합계를 계층적으로 생성하는 그룹 함수는?",
+      "choices": ["ROLLUP", "RANK", "LISTAGG", "NULLIF"],
+      "answer": "①",
+      "answer_index": 0,
+      "explanation": "ROLLUP은 지정한 컬럼 순서대로 소계와 총합계를 계층적으로 생성한다. CUBE는 가능한 모든 조합의 소계를 만든다.",
+      "difficulty": "상",
+      "tags": ["GROUP BY", "ROLLUP"]
+    },
+    {
+      "kind": "problem",
+      "number": 11,
+      "type": "multiple_choice",
+      "question": "동순위를 허용하되 다음 순위를 건너뛰지 않는(1,2,2,3) 윈도우 함수는?",
+      "choices": ["ROW_NUMBER()", "RANK()", "DENSE_RANK()", "NTILE()"],
+      "answer": "③",
+      "answer_index": 2,
+      "explanation": "DENSE_RANK()는 동순위를 허용하고 다음 순위를 건너뛰지 않는다(1,2,2,3). RANK()는 건너뛴다(1,2,2,4).",
+      "difficulty": "상",
+      "tags": ["윈도우 함수"]
+    },
+    {
+      "kind": "problem",
+      "number": 12,
+      "type": "multiple_choice",
+      "question": "계층형 질의에서 전개 시작점을 지정하는 절(Oracle)은?",
+      "choices": ["CONNECT BY", "START WITH", "ORDER SIBLINGS BY", "PRIOR"],
+      "answer": "②",
+      "answer_index": 1,
+      "explanation": "START WITH는 계층 전개의 루트(시작 조건)를 지정하고, CONNECT BY는 부모-자식 전개 조건을 지정한다.",
+      "difficulty": "상",
+      "tags": ["계층 질의"]
+    },
+    {
+      "kind": "problem",
+      "number": 13,
+      "type": "multiple_choice",
+      "question": "스칼라 서브쿼리에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "FROM 절에서만 사용되며 여러 행을 반환할 수 있다",
+        "SELECT 절에 사용되며 한 행·한 컬럼(단일 값)을 반환해야 한다",
+        "항상 여러 컬럼을 반환한다",
+        "WHERE 절에서만 사용할 수 있다"
+      ],
+      "answer": "②",
+      "answer_index": 1,
+      "explanation": "스칼라 서브쿼리는 SELECT 절 등에서 하나의 값을 반환해야 하며, 여러 행을 반환하면 오류가 발생한다.",
+      "difficulty": "중",
+      "tags": ["서브쿼리", "스칼라 서브쿼리"]
+    },
+    {
+      "kind": "problem",
+      "number": 14,
+      "type": "multiple_choice",
+      "question": "IN 대신 사용할 수 있으며, 서브쿼리 결과의 존재 여부만 판단하는 연산자는?",
+      "choices": ["ANY", "ALL", "EXISTS", "BETWEEN"],
+      "answer": "③",
+      "answer_index": 2,
+      "explanation": "EXISTS는 서브쿼리가 한 건이라도 반환하면 참을 돌려주며, 존재 여부만 확인하므로 대용량에서 효율적일 수 있다.",
+      "difficulty": "상",
+      "tags": ["서브쿼리", "EXISTS"]
+    },
+    {
+      "kind": "problem",
+      "number": 15,
+      "type": "multiple_choice",
+      "question": "서브쿼리가 메인쿼리의 컬럼을 참조하여 행마다 반복 수행되는 서브쿼리를 무엇이라 하는가?",
+      "choices": [
+        "인라인 뷰(Inline View)",
+        "스칼라 서브쿼리(Scalar Subquery)",
+        "상관 서브쿼리(Correlated Subquery)",
+        "다중 행 서브쿼리(Multi-row Subquery)"
+      ],
+      "answer": "③",
+      "answer_index": 2,
+      "explanation": "상관 서브쿼리는 메인쿼리의 값을 참조하므로 메인쿼리 각 행마다 반복 실행된다.",
+      "difficulty": "상",
+      "tags": ["서브쿼리"]
+    }
+  ]
+}

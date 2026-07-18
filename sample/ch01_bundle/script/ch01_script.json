@@ -1,0 +1,29 @@
+{
+  "version": "1.0",
+  "chapter": 1,
+  "title": "샘플 영상 — mediaforge 첫 실행",
+  "aspect_ratio": "16:9",
+  "scenes": [
+    {
+      "scene": 1,
+      "title": "오프닝",
+      "narration_text": "안녕하세요. 이것은 미디어포지 샘플 영상의 첫 장면입니다.",
+      "narration_seconds": 6,
+      "image_filename": "ch01_01_opening.png"
+    },
+    {
+      "scene": 2,
+      "title": "본문",
+      "narration_text": "이미지와 음성, 자막이 자동으로 합쳐져 하나의 영상이 만들어집니다.",
+      "narration_seconds": 7,
+      "image_filename": "ch01_02_body.png"
+    },
+    {
+      "scene": 3,
+      "title": "마무리",
+      "narration_text": "직접 대본과 이미지를 바꿔 넣어 나만의 영상을 만들어 보세요.",
+      "narration_seconds": 7,
+      "image_filename": "ch01_03_closing.png"
+    }
+  ]
+}
