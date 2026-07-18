@@ -30,6 +30,8 @@ WORKBOOK_DEFAULT_VOICE = "F2"
 WORKBOOK_DEFAULT_SPEED = 1.05
 # 문제→해설 사이 '생각할 시간' 카운트다운(초). lesson `countdown_seconds` 로 조정, 0=끔.
 DEFAULT_COUNTDOWN = 5
+# 해설→다음 문제 사이 간격(초). lesson `gap_seconds`, 0=끔.
+DEFAULT_GAP = 1.5
 
 
 def _source_ref(b: dict, default_round: str) -> str:
@@ -208,6 +210,8 @@ def lesson_to_script(doc: dict, chapter: Optional[int] = None) -> dict:
     voice = (doc.get("voice") or WORKBOOK_DEFAULT_VOICE)
     speed = doc.get("speed", WORKBOOK_DEFAULT_SPEED)
     cd = int(doc.get("countdown_seconds", DEFAULT_COUNTDOWN))
+    gap = float(doc.get("gap_seconds", DEFAULT_GAP))
+    ai_reading = bool(doc.get("ai_reading", True))
 
     scenes: list[dict] = []
 
@@ -282,11 +286,12 @@ def lesson_to_script(doc: dict, chapter: Optional[int] = None) -> dict:
             )
             if spp <= 1:
                 continue
-            # 씬 B0 — 생각할 시간(카운트다운, 무음)
+            # 씬 B0 — 생각할 시간(카운트다운, 무음). 앞 문제 전체(질문+보기)를 보여준다.
             if cd > 0:
                 add_scene(
                     "생각할 시간", "", _slug("t", num),
-                    {"kind": "countdown", "seconds": cd, "number": num, "question": question},
+                    {"kind": "countdown", "seconds": cd, "number": num,
+                     "question": question, "choices": choices, "passage": passage, "meta": meta},
                     silent=True, seconds=cd,
                 )
             # 씬 B — 정답·해설
@@ -313,6 +318,12 @@ def lesson_to_script(doc: dict, chapter: Optional[int] = None) -> dict:
                      "page": pi + 1, "total_pages": n_pages,
                      "show_choices": pi == 0},
                 )
+            # 씬 B2 — 다음 문제로 넘어가기 전 간격(무음)
+            if gap > 0:
+                add_scene(
+                    "다음 문제", "", _slug("g", num),
+                    {"kind": "gap"}, silent=True, seconds=gap,
+                )
 
     return {
         "version": "1.0",
@@ -324,6 +335,7 @@ def lesson_to_script(doc: dict, chapter: Optional[int] = None) -> dict:
         "round": default_round,
         "voice": voice,
         "speed": speed,
+        "ai_reading": ai_reading,
         "aspect_ratio": "16:9",
         "scenes": scenes,
     }

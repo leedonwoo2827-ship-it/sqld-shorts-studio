@@ -83,6 +83,11 @@ def generate_bundle_slides(
         try:
             img_name = scene.get("image_filename") or f"{cid}_{idx:02d}_slide.png"
             clip_name = scene.get("video_filename") or f"{cid}_{idx:02d}.mp4"
+            if slide.get("kind") == "gap":
+                # 간격 씬: 정적 포스터만(무음). mp4maker 가 seconds 만큼 이미지 hold.
+                layout.build_gap(slide, pal).save(images_dir / img_name)
+                result["images"].append(img_name)
+                continue
             if slide.get("kind") == "countdown":
                 seconds = int(slide.get("seconds") or 5)
                 cbase = layout.build_countdown_base(slide, pal)

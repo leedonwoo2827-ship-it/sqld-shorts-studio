@@ -357,33 +357,44 @@ def build_answer(slide: dict, pal: dict):
 
 
 def build_countdown_base(slide: dict, pal: dict) -> Image.Image:
-    """카운트다운 씬 배경 — 칩 + 문제(흐리게) + '정답을 생각해 보세요'. 숫자는 프레임별로."""
-    base = _gradient(pal)
-    _, y = _chip(base, "생각할 시간", pal)
-    d = ImageDraw.Draw(base)
-    q = (slide.get("question") or "").strip()
-    if q:
-        qfont, qlines, qlh = fit_text(q, 40, 26, CONTENT_W, 150)
-        draw_lines(d, qlines[:2], PAD_X, y + 20, qfont, pal["sub"] + (200,), qlh)
-    pfont = load_font(46, bold=True)
-    label = "정답을 생각해 보세요"
-    lw = int(_measure(label, pfont))
-    d.text(((W - lw) // 2, 300), label, font=pfont, fill=pal["text"] + (255,))
+    """카운트다운 배경 = 앞 문제 전체(질문+보기)를 그대로 보여준다. 타이머는 프레임별로."""
+    prob = {"kind": "problem", "number": slide.get("number"),
+            "question": slide.get("question") or "", "choices": slide.get("choices") or [],
+            "passage": slide.get("passage") or "", "meta": slide.get("meta") or {}}
+    base, elements = build_problem(prob, pal)
+    for layer, _t in elements:               # 보기까지 모두 펼쳐 정적으로
+        base = Image.alpha_composite(base, layer)
     return base
 
 
 def draw_countdown_number(base: Image.Image, n: int, pal: dict) -> Image.Image:
-    """base 위에 큰 숫자 n(원 안)을 그린 RGB 프레임."""
+    """문제 위에 우하단 타이머 배지(숫자 n)를 그린 RGB 프레임."""
     img = base.copy()
     d = ImageDraw.Draw(img)
-    cx, cy, r = W // 2, 650, 175
-    d.ellipse((cx - r, cy - r, cx + r, cy + r), outline=pal["accent"] + (255,), width=10)
-    nf = load_font(280, bold=True)
+    cx, cy, r = W - 175, H - 175, 95
+    d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(0, 0, 0, 90),
+              outline=pal["accent"] + (255,), width=8)
+    nf = load_font(120, bold=True)
     s = str(n)
     bb = d.textbbox((0, 0), s, font=nf)
     tw, th = bb[2] - bb[0], bb[3] - bb[1]
     d.text((cx - tw // 2 - bb[0], cy - th // 2 - bb[1]), s, font=nf, fill=pal["accent"] + (255,))
+    hint = load_font(28, bold=True)
+    hl = "생각할 시간"
+    hw = int(_measure(hl, hint))
+    d.text((cx - hw // 2, cy - r - 44), hl, font=hint, fill=pal["sub"] + (255,))
     return img.convert("RGB")
+
+
+def build_gap(slide: dict, pal: dict) -> Image.Image:
+    """해설→다음 문제 사이 간격 슬라이드 — 은은한 '다음 문제 ▶'."""
+    base = _gradient(pal)
+    d = ImageDraw.Draw(base)
+    f = load_font(46, bold=True)
+    t = "다음 문제 ▶"
+    tw = int(_measure(t, f))
+    d.text(((W - tw) // 2, H // 2 - 30), t, font=f, fill=pal["sub"] + (230,))
+    return base.convert("RGB")
 
 
 _BUILDERS = {

@@ -190,6 +190,18 @@ def _lesson_voice_speed(name: str) -> tuple[str | None, float | None]:
     return data.get("voice"), data.get("speed")
 
 
+def _lesson_ai_reading(name: str) -> bool:
+    """레슨의 ai_reading 플래그(기본 True). ⚡에서 자동 AI 발음 적용 여부."""
+    sp = bundles.find_script(bundles.bundle_path(name))
+    if not sp:
+        return False
+    try:
+        data = json.loads(sp.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    return str(data.get("kind")) == "lesson" and bool(data.get("ai_reading", True))
+
+
 @router.get("/llm/status")
 async def llm_status() -> dict:
     """codex/agy 설치·로그인·이메일 + 현재 활성 공급자."""
@@ -566,12 +578,16 @@ async def _job_oneclick(job: Job, name: str) -> None:
         # 2) 음성/자막 (오디오 누락 씬이 있을 때만)
         if st["missing_audio"]:
             job.stage = "음성/자막 생성"
-
-            def cb(completed, total, scene):
-                job.completed, job.total = completed, total
-                job.stage = f"음성/자막 생성 (씬 {scene})" if scene else "음성/자막 생성"
-            lv, lspeed = _lesson_voice_speed(name)
-            await synthesize(root, voice_override=lv, speed=lspeed, on_progress=cb)
+            if is_lesson and _lesson_ai_reading(name):
+                # 레슨 기본: AI 발음(숫자·영어→한글 읽기)으로 음성 생성 — 손 안 가게 한 번에.
+                job.add_log("AI 발음으로 음성 생성")
+                await _run_ai_synth(root, name, None, job)
+            else:
+                def cb(completed, total, scene):
+                    job.completed, job.total = completed, total
+                    job.stage = f"음성/자막 생성 (씬 {scene})" if scene else "음성/자막 생성"
+                lv, lspeed = _lesson_voice_speed(name)
+                await synthesize(root, voice_override=lv, speed=lspeed, on_progress=cb)
             job.add_log("음성/자막 생성 완료")
         else:
             job.add_log("음성/자막 이미 존재 — 건너뜀")
@@ -805,41 +821,47 @@ class SynthAiReq(BaseModel):
     model: str | None = None
 
 
+async def _run_ai_synth(root, name: str, model: str | None, job: Job,
+                        only: list[int] | None = None) -> int:
+    """씬마다 낭독을 AI 발음(한글 읽기)으로 바꿔 음성 생성. 무음 씬은 silence. 자막은 원문 유지."""
+    sp = bundles.find_script(root)
+    if not sp:
+        raise ValueError("대본이 없습니다.")
+    data = json.loads(sp.read_text(encoding="utf-8"))
+    scenes = data.get("scenes") or []
+    lv, lspeed = _lesson_voice_speed(name)
+    want = set(only) if only else None
+    targets = [s for s in scenes if want is None or int(s.get("scene") or 0) in want]
+    total = len(targets)
+    for i, sc in enumerate(targets):
+        idx = int(sc.get("scene") or (i + 1))
+        job.completed, job.total = i, total
+        if sc.get("silent"):
+            await write_silence(root, idx, float(sc.get("narration_seconds") or 5))
+            continue
+        orig = (sc.get("narration_text") or "").strip()
+        if not orig:
+            continue
+        job.stage = f"AI 발음+음성 (씬 {idx})"
+        reading = await asyncio.to_thread(pronounce.to_reading, orig, model)
+        job.add_log(f"씬 {idx}: {reading[:40]}")
+        await synthesize_scene_text(
+            root, idx, reading, srt_text=orig, voice=lv, speed=lspeed, reset_subtitle=True)
+    job.completed = total
+    return total
+
+
 async def _job_synth_ai(job: Job, name: str, req: SynthAiReq) -> None:
-    """씬마다 낭독을 AI 발음(한글 읽기)으로 바꿔 음성 생성. 자막은 원문 유지."""
     reg = get_registry()
     try:
         job.status = "running"
         job.stage = "AI 발음 변환 + 음성 생성"
         root = bundles.bundle_path(name)
-        sp = bundles.find_script(root)
-        if not sp:
-            reg.finish(job, status="error", error="대본이 없습니다.")
-            return
-        data = json.loads(sp.read_text(encoding="utf-8"))
-        scenes = data.get("scenes") or []
-        lv, lspeed = _lesson_voice_speed(name)
-        want = set(req.only) if req.only else None
-        targets = [s for s in scenes if want is None or int(s.get("scene") or 0) in want]
-        total = len(targets)
-        for i, sc in enumerate(targets):
-            idx = int(sc.get("scene") or (i + 1))
-            job.completed, job.total = i, total
-            if sc.get("silent"):
-                await write_silence(root, idx, float(sc.get("narration_seconds") or 5))
-                continue
-            orig = (sc.get("narration_text") or "").strip()
-            if not orig:
-                continue
-            job.stage = f"AI 발음+음성 (씬 {idx})"
-            reading = await asyncio.to_thread(pronounce.to_reading, orig, req.model)
-            job.add_log(f"씬 {idx}: {reading[:40]}")
-            await synthesize_scene_text(
-                root, idx, reading, srt_text=orig, voice=lv, speed=lspeed,
-                reset_subtitle=True)
-        job.completed = total
-        reg.finish(job, status="done", result={"scenes": total, "status": bundles.bundle_status(name)})
+        n = await _run_ai_synth(root, name, req.model, job, only=req.only)
+        reg.finish(job, status="done", result={"scenes": n, "status": bundles.bundle_status(name)})
     except llm_errors.LLMError as exc:
+        reg.finish(job, status="error", error=str(exc))
+    except (FileNotFoundError, ValueError) as exc:
         reg.finish(job, status="error", error=str(exc))
     except Exception as exc:  # noqa: BLE001
         reg.finish(job, status="error", error=str(exc))
