@@ -31,7 +31,8 @@ Log = Callable[[str], None]
 # ---- 보드/원 지오메트리 (make_boards2 와 동일) ----
 W, H = 1080, 1920
 PAD = 56
-D = 450                       # 아바타 원 지름
+D = 450                       # (구) 아바타 원 지름 — 큰-강사 모드에선 미사용
+AV_W = 560                    # 큰 강사(우측) 가로폭
 NUDGE = {"F1": 46, "F3": 46, "F5": 46}
 FILL = {"M3", "M5"}           # 하단 흰여백 방지: 채우기 모드
 TARGET_FH = D * 0.35
@@ -52,8 +53,6 @@ def render_board(problem: dict, subject: str = "SQLD") -> "object":
     pal = {"accent": (37, 99, 214), "answer": (22, 158, 74), "text": (23, 42, 71),
            "sky": (56, 148, 222), "ring": (205, 219, 240)}
     ai = problem.get("answer_index")
-    av_cx = W - PAD - D // 2
-    av_cy = H - 50 - D // 2
     base = Image.new("RGB", (W, H), (255, 255, 255)); px = base.load()
     for y in range(520):
         t = 1 - y / 520
@@ -84,14 +83,11 @@ def render_board(problem: dict, subject: str = "SQLD") -> "object":
     y += 10
     if isinstance(ai, int):
         d.text((PAD, y), f"정답  {_circled(ai)}", font=load_font(38, bold=True), fill=pal["answer"]); y += 64
-    ew = (av_cx - D // 2 - 30) - PAD
+    ew = (W - AV_W - 24) - PAD          # 해설은 우측 큰 강사 왼쪽 컬럼에
     d.text((PAD, y), "해설", font=load_font(30, bold=True), fill=pal["sky"]); y += 46
     ef, el, elh = fit_text(problem.get("explanation", ""), 30, 22, ew, H - 56 - y)
     draw_lines(d, el, PAD, y, ef, pal["sky"], elh)
-    base = base.convert("RGBA")
-    ImageDraw.Draw(base).ellipse((av_cx - D // 2, av_cy - D // 2, av_cx + D // 2, av_cy + D // 2),
-                                 outline=pal["ring"] + (255,), width=5)
-    return base.convert("RGB")
+    return base
 
 
 # ============================ 2) Supertonic TTS ============================
@@ -226,26 +222,25 @@ def build_talking_short(problem: dict, *, face_code: str, voice_code: str,
     if not sorted(fr.glob("f_*.png")):
         raise RuntimeError(f"립싱크 프레임 추출 실패(0장). clip={clip}\nffmpeg: {(ex.stderr or '')[-500:]}")
     sess = new_session("u2net_human_seg")
-    cm = Image.new("L", (D * 3, D * 3), 0); ImageDraw.Draw(cm).ellipse((0, 0, D * 3, D * 3), fill=255)
-    cm = cm.resize((D, D), Image.LANCZOS)
-    av_cx = W - PAD - D // 2; av_cy = H - 50 - D // 2; cx0 = av_cx - D // 2; cy0 = av_cy - D // 2
-    ring = (205, 219, 240)
     of = workdir / "final_frames"; of.mkdir(exist_ok=True)
     for p in of.glob("*.png"):
         p.unlink()
     frames = sorted(fr.glob("f_*.png"))
-    sc = off = None
+    bbox = None                                   # 첫 프레임 인물 bbox로 고정(프레임간 떨림 방지)
     for i, fp in enumerate(frames):
-        im = Image.open(fp).convert("RGBA"); cut = remove(im, session=sess)
-        w = Image.new("RGBA", cut.size, (255, 255, 255, 255)); w.alpha_composite(cut); f = w.convert("RGB")
-        f = ImageEnhance.Brightness(f).enhance(1.11); f = ImageEnhance.Color(f).enhance(1.05)
-        bl = f.filter(ImageFilter.GaussianBlur(5)); f = ImageChops.screen(f, bl.point(lambda p: int(p * 0.4)))
-        if sc is None:
-            sc, off = _face_scale_offset(f, cut, face_code)
-        nf = f.resize((int(f.width * sc), int(f.height * sc)))
-        tile = Image.new("RGB", (D, D), (255, 255, 255)); tile.paste(nf, (int(off[0]), int(off[1])))
-        frame = board.copy(); frame.paste(tile, (cx0, cy0), cm)
-        ImageDraw.Draw(frame).ellipse((cx0, cy0, cx0 + D, cy0 + D), outline=ring, width=5)
+        im = Image.open(fp).convert("RGBA")
+        cut = remove(im, session=sess)            # 배경 투명(흰 판 위에 자연스레 얹힘)
+        alpha = cut.split()[3]
+        rgb = cut.convert("RGB")
+        rgb = ImageEnhance.Brightness(rgb).enhance(1.11); rgb = ImageEnhance.Color(rgb).enhance(1.05)
+        bl = rgb.filter(ImageFilter.GaussianBlur(5)); rgb = ImageChops.screen(rgb, bl.point(lambda p: int(p * 0.4)))
+        person = rgb.convert("RGBA"); person.putalpha(alpha)
+        if bbox is None:
+            bbox = cut.getbbox() or (0, 0, cut.width, cut.height)
+        person = person.crop(bbox)
+        person = person.resize((AV_W, int(person.height * AV_W / person.width)), Image.LANCZOS)
+        frame = board.copy()
+        frame.paste(person, (W - AV_W, H - person.height), person)   # 우측·하단 정렬(큰 강사)
         frame.save(of / f"F_{i:04d}.png")
 
     # 5) 조립(+음성)
