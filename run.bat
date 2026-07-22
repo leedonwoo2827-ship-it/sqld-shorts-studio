@@ -15,7 +15,7 @@ if not exist ".venv\Scripts\python.exe" (
 )
 
 REM Web app port. Change this one value if the port is in use.
-set "PORT=8830"
+set "PORT=8831"
 
 set "PYTHONPATH=%~dp0;%PYTHONPATH%"
 echo [run] Open http://localhost:%PORT% in your browser  (close this window to stop)

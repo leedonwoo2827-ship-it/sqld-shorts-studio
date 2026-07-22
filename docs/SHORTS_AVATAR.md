@@ -133,7 +133,7 @@ COMFY_PORT=8188
 ① setup.bat            (최초 1회: 앱 + TTS)
 ② ComfyUI 실행          (Desktop 앱 또는 run_nvidia_gpu.bat)
 ③ 확장 프로그램 관리 → `lip` 검색 → ComfyUI Sonic 설치 + Restart  (최초 1회)
-④ run.bat              (브라우저 http://localhost:8830 자동 열림)
+④ run.bat              (브라우저 http://localhost:8831 자동 열림)
 ```
 - 아바타/음성 없이 **지금 결과 먼저 보기**(한 문제=한 영상, 폴더 일괄):
   `python scripts/make_shorts.py samples/sqld_shorts -o out/shorts`

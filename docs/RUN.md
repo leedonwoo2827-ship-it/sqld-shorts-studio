@@ -9,7 +9,7 @@ ffmpeg 필요: `winget install Gyan.FFmpeg` (설치 후 새 터미널).
 
 ## 웹앱 실행
 ```powershell
-run.bat                         # → http://localhost:8830
+run.bat                         # → http://localhost:8831
 ```
 - 크롬 확장이 아니라 **로컬 웹앱**. 브라우저로 접속해 쓴다.
 - 종료: 터미널에서 Ctrl+C.

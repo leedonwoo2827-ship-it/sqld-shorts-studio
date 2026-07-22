@@ -3,73 +3,123 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SQLD 쇼츠 스튜디오</title>
+<title>SQLD 쇼츠 스튜디오 — 말하는 아바타</title>
 <style>
-  body{font-family:'Pretendard','Malgun Gothic',sans-serif;margin:0;background:#f3f6fb;color:#1b2a47}
-  .wrap{max-width:1000px;margin:0 auto;padding:28px 20px}
-  h1{font-size:22px;margin:0 0 4px}
-  .sub{color:#5a6e8c;font-size:14px;margin-bottom:20px}
-  .card{background:#fff;border:1px solid #e2e8f2;border-radius:14px;padding:20px;margin-bottom:18px}
-  label{display:block;font-weight:600;font-size:13px;margin:12px 0 6px}
-  select,button{font-size:15px;padding:10px 12px;border-radius:10px;border:1px solid #cdd8e8;background:#fff}
-  .row{display:flex;gap:14px;flex-wrap:wrap}
-  .row>div{flex:1;min-width:180px}
-  button.go{background:#2563d6;color:#fff;border:none;font-weight:700;padding:13px 26px;cursor:pointer;margin-top:18px}
-  button.go:disabled{background:#9db4dc;cursor:default}
-  #log{background:#0f1b30;color:#c9e0ff;font-family:monospace;font-size:12px;border-radius:10px;padding:12px;height:180px;overflow:auto;white-space:pre-wrap;margin-top:14px}
-  video{width:340px;max-width:100%;border-radius:14px;border:1px solid #d7e0ee;margin-top:8px}
-  .badge{display:inline-block;background:#eaf1fe;color:#2563d6;border-radius:8px;padding:3px 10px;font-size:12px;font-weight:700}
-  .warn{background:#fff7e6;border:1px solid #ffe0a3;color:#8a5a00;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:16px}
+  :root{--blue:#2563d6;--ink:#1b2a47;--sub:#5a6e8c;--line:#e2e8f2;--bg:#eef2f8}
+  *{box-sizing:border-box}
+  body{font-family:'Pretendard','Malgun Gothic',sans-serif;margin:0;background:var(--bg);color:var(--ink)}
+  .top{background:#fff;border-bottom:1px solid var(--line);padding:14px 22px;display:flex;align-items:center;gap:10px}
+  .top .logo{font-weight:800;font-size:18px;color:var(--blue)}
+  .top .tag{font-size:12px;color:var(--sub);background:#eaf1fe;border-radius:8px;padding:3px 10px}
+  .top .right{margin-left:auto;font-size:13px}
+  .top a{color:var(--sub);text-decoration:none;margin-left:14px}
+  .wrap{max-width:1040px;margin:0 auto;padding:22px 18px 60px}
+  .hero{background:linear-gradient(135deg,#2f6ae0,#1e3f9b);color:#fff;border-radius:18px;padding:26px 28px;margin-bottom:20px}
+  .hero .eyebrow{font-size:12px;letter-spacing:.08em;opacity:.85;font-weight:700}
+  .hero h1{font-size:26px;margin:6px 0 8px}
+  .hero p{margin:0 0 16px;opacity:.92;font-size:14px;line-height:1.6;max-width:640px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{background:rgba(255,255,255,.16);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600}
+  .arrow{opacity:.7;align-self:center}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px}
+  .card h3{margin:0 0 3px;font-size:16px}
+  .step{font-size:11px;letter-spacing:.06em;color:var(--blue);font-weight:800}
+  .card .desc{color:var(--sub);font-size:13px;margin:4px 0 14px;line-height:1.5}
+  label{display:block;font-weight:700;font-size:12px;margin:12px 0 6px;color:#33445f}
+  select{width:100%;font-size:15px;padding:11px 12px;border-radius:10px;border:1px solid #cdd8e8;background:#fff}
+  .qbox{background:#f7f9fd;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.5;min-height:60px;color:#34455f}
+  .go{width:100%;background:var(--blue);color:#fff;border:none;font-weight:800;font-size:16px;padding:15px;border-radius:12px;cursor:pointer;margin-top:8px}
+  .go:disabled{background:#9db4dc;cursor:default}
+  .warn{background:#fff7e6;border:1px solid #ffe0a3;color:#8a5a00;border-radius:10px;padding:10px 14px;font-size:13px;margin:16px 0}
+  #log{background:#0f1b30;color:#c9e0ff;font-family:ui-monospace,monospace;font-size:12px;border-radius:12px;padding:14px;height:220px;overflow:auto;white-space:pre-wrap}
+  #resultCard{margin-top:16px;display:none}
+  video{width:320px;max-width:100%;border-radius:14px;border:1px solid #d7e0ee}
+  .muted{color:var(--sub);font-size:12px;margin-top:8px}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>🎬 SQLD 쇼츠 스튜디오</h1>
-  <div class="sub">문제를 골라 [생성]하면 보드 + 음성(Supertonic) + 말하는 아바타(Sonic 립싱크)까지 자동으로 만듭니다. 한 번에 1개씩.</div>
-  <div class="warn">⚠️ 아바타 립싱크는 <b>ComfyUI가 실행 중</b>이어야 하고, 8GB 기준 1편에 <b>수~20분</b> 걸립니다(백그라운드 진행).</div>
+<div class="top">
+  <span class="logo">🎬 SQLD 쇼츠 스튜디오</span>
+  <span class="tag">LOCAL · ComfyUI(Sonic) · Supertonic3 · ffmpeg</span>
+  <span class="right"><a href="/studio">구 문제집 UI</a><a href="https://github.com/leedonwoo2827-ship-it/sqld-shorts-studio" target="_blank">GitHub</a></span>
+</div>
 
-  <div class="card">
-    <div class="row">
-      <div><label>문제</label><select id="problem"></select></div>
-      <div><label>강사 얼굴</label><select id="face"></select></div>
-      <div><label>목소리</label><select id="voice"></select></div>
-      <div><label>립싱크 해상도(8GB=384)</label>
-        <select id="res"><option value="384">384 (권장)</option><option value="320">320 (빠름)</option></select></div>
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">문제 하나 = 쇼츠 한 편</div>
+    <h1>문제가 말하는-아바타 쇼츠가 되기까지</h1>
+    <p>문제 JSON을 9:16 세로 보드로 그리고, Supertonic3로 해설을 읽고, ComfyUI Sonic으로 강사 얼굴을 음성에 맞춰 립싱크한 뒤 ffmpeg로 합칩니다 — 이 PC 안에서, 클라우드·API 키 없이.</p>
+    <div class="chips">
+      <span class="chip">📄 문제 JSON</span><span class="arrow">→</span>
+      <span class="chip">🖼 9:16 보드</span><span class="arrow">→</span>
+      <span class="chip">🎙 음성(Supertonic3)</span><span class="arrow">→</span>
+      <span class="chip">🧑‍🏫 아바타 립싱크(Sonic)</span><span class="arrow">→</span>
+      <span class="chip">🎬 MP4</span>
     </div>
-    <button class="go" id="go">▶ 쇼츠 생성</button>
+  </div>
+
+  <div class="warn">⚠️ 아바타 립싱크는 <b>ComfyUI(Sonic) 실행 중</b>이어야 하고, 8GB 기준 한 편에 <b>수~20분</b> 걸립니다(백그라운드 진행). 설치법: <a href="https://github.com/leedonwoo2827-ship-it/sqld-shorts-studio/blob/main/docs/SHORTS_AVATAR.md" target="_blank">docs/SHORTS_AVATAR.md</a></div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="step">STEP 1 · 문제</div>
+      <h3>문제 고르기</h3>
+      <div class="desc">samples/sqld_shorts 의 문제 중 하나. (대본·정답·해설은 JSON에 들어있음)</div>
+      <label>문제</label><select id="problem"></select>
+      <label>미리보기</label><div class="qbox" id="qprev">—</div>
+    </div>
+    <div class="card">
+      <div class="step">STEP 2 · 강사</div>
+      <h3>얼굴 · 목소리</h3>
+      <div class="desc">얼굴 10종(M1~F5)과 Supertonic3 음성 10종. 코드가 같으면 톤이 매칭됩니다(예 F2↔F2).</div>
+      <label>강사 얼굴</label><select id="face"></select>
+      <label>목소리(Supertonic3)</label><select id="voice"></select>
+      <label>립싱크 해상도</label><select id="res"><option value="384">384 (8GB 권장)</option><option value="320">320 (더 빠름)</option></select>
+      <button class="go" id="go" style="margin-top:16px">▶ 쇼츠 생성</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="step">STEP 3 · 진행</div>
+    <h3>생성 로그</h3>
+    <div class="desc">보드 → 음성 → 립싱크 → 합성 순으로 진행됩니다.</div>
     <div id="log">대기 중…</div>
   </div>
 
-  <div class="card" id="resultCard" style="display:none">
-    <span class="badge">결과</span>
+  <div class="card" id="resultCard">
+    <div class="step">STEP 4 · 결과</div>
+    <h3>완성 쇼츠</h3>
     <div><video id="vid" controls></video></div>
-    <div id="dl"></div>
+    <div class="muted" id="dl"></div>
   </div>
 </div>
 
 <script>
 const $=id=>document.getElementById(id);
+let PROB=[];
 async function loadOptions(){
-  const o=await (await fetch('/api/mf/shorts/options')).json();
-  $('problem').innerHTML=o.problems.map(p=>`<option value="${p.no}">문제 ${p.no} — ${p.question}…</option>`).join('');
+  const o=await (await fetch('/api/mf/shorts/options')).json(); PROB=o.problems;
+  $('problem').innerHTML=o.problems.map(p=>`<option value="${p.no}">문제 ${p.no}</option>`).join('');
   $('face').innerHTML=o.faces.map(c=>`<option value="${c}" ${c==='F2'?'selected':''}>${c}</option>`).join('');
   $('voice').innerHTML=o.voices.map(c=>`<option value="${c}" ${c==='F2'?'selected':''}>${c}</option>`).join('');
+  showPrev();
 }
+function showPrev(){const p=PROB.find(x=>x.no==+$('problem').value); $('qprev').textContent=p?p.question+'…':'—';}
+$('problem').addEventListener('change',showPrev);
 loadOptions();
 let polling=null;
 $('go').onclick=async()=>{
   $('go').disabled=true; $('resultCard').style.display='none'; $('log').textContent='요청 전송…\n';
   const body={problem:+$('problem').value, face:$('face').value, voice:$('voice').value, min_res:+$('res').value};
   const r=await (await fetch('/api/mf/shorts/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).json();
-  const id=r.job_id;
   polling=setInterval(async()=>{
-    const j=await (await fetch('/api/mf/shorts/jobs/'+id)).json();
-    $('log').textContent=(j.log||[]).join('\n');
-    $('log').scrollTop=$('log').scrollHeight;
+    const j=await (await fetch('/api/mf/shorts/jobs/'+r.job_id)).json();
+    $('log').textContent=(j.log||[]).join('\n'); $('log').scrollTop=$('log').scrollHeight;
     if(j.status==='done'){clearInterval(polling); $('go').disabled=false;
       const f='/api/mf/shorts/file/'+j.result.file+'?t='+Date.now();
-      $('vid').src=f; $('dl').innerHTML=`<a href="${f}" download>⬇ 다운로드 (${j.result.file})</a>`;
-      $('resultCard').style.display='block';}
+      $('vid').src=f; $('dl').innerHTML=`<a href="${f}" download>⬇ 다운로드 (${j.result.file})</a>`; $('resultCard').style.display='block';}
     if(j.status==='error'){clearInterval(polling); $('go').disabled=false; $('log').textContent+='\n\n❌ 실패: '+j.error;}
   },2000);
 };

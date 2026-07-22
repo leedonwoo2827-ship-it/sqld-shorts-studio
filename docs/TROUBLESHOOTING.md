@@ -11,4 +11,4 @@
 | **자막이 둘째 줄로 넘어감** | `--wrap-chars` 를 키우거나 `--font-size` 를 줄인다 (기본 50 / 14). 예: `--wrap-chars 56 --font-size 13`. |
 | **ffmpeg 못 찾음** | `winget install Gyan.FFmpeg` 후 새 터미널. `python -m mp4maker --probe` 로 확인. |
 | **TTS 모델 못 찾음** | `assets/onnx`, `assets/voice_styles` 에 모델이 있는지, 또는 `VOICEWRIGHT_ASSETS_DIR` 환경변수 확인. |
-| **포트 충돌(8830)** | `uvicorn app.main:app --port 8000` 로 다른 포트. |
+| **포트 충돌(8831)** | `uvicorn app.main:app --port 8000` 로 다른 포트. |
