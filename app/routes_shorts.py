@@ -98,3 +98,51 @@ def serve(name: str):
     if not f.is_file():
         raise HTTPException(404, "파일 없음")
     return FileResponse(str(f), media_type="video/mp4")
+
+
+class PreviewReq(BaseModel):
+    text: str
+    voice: str = "F2"
+
+
+@router.post("/shorts/tts_preview")
+def tts_preview(req: PreviewReq):
+    """음성+자막 탭: narration 텍스트를 슈퍼토닉으로 미리듣기(wav)."""
+    from mp4maker.talking_shorts import tts_supertonic
+    import uuid as _uuid
+    if req.voice not in ALL_CODES:
+        raise HTTPException(400, "잘못된 목소리 코드")
+    prev = OUT / "_preview"
+    prev.mkdir(parents=True, exist_ok=True)
+    wav = prev / f"prev_{_uuid.uuid4().hex[:8]}.wav"
+    try:
+        tts_supertonic((req.text or "").strip()[:500], req.voice, wav)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(500, f"음성 생성 실패: {exc}")
+    return FileResponse(str(wav), media_type="audio/wav")
+
+
+class YtReq(BaseModel):
+    problem: dict
+    subject: str = "SQLD"
+
+
+@router.post("/shorts/youtube")
+def youtube(req: YtReq) -> dict:
+    """최종 탭: 문제로 YouTube 제목/설명/해시태그 자동 생성(템플릿, LLM 불필요)."""
+    p = req.problem or {}
+    subj = req.subject or "SQLD"
+    q = (p.get("question") or "").strip()
+    ans = (p.get("answer") or "").strip()
+    expl = (p.get("explanation") or "").strip()
+    tags = p.get("tags") or []
+    num = p.get("number")
+    title = f"[{subj}] {q[:30]}{'…' if len(q) > 30 else ''} #shorts"
+    hs = " ".join("#" + str(t).replace(" ", "") for t in tags)
+    hashtags = (hs + f" #{subj} #자격증 #기출 #shorts #공부").strip()
+    desc = (
+        f"{subj} 기출 유형{f' · 문제 {num}' if num is not None else ''}\n\n"
+        f"Q. {q}\n✅ 정답: {ans}\n\n💡 {expl}\n\n{hashtags}\n\n"
+        f"— {subj} 개념을 쇼츠로 빠르게! 구독하면 매일 한 문제 🔔"
+    )
+    return {"title": title, "description": desc, "hashtags": hashtags}
