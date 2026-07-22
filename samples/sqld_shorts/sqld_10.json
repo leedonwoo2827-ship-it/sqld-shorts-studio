@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "kind": "lesson",
+  "format": "shorts",
+  "orientation": "vertical",
+  "chapter": 1,
+  "title": "SQLD 쇼츠 - 문제 10",
+  "subject": "SQLD",
+  "theme": "sqld",
+  "scenes_per_problem": 2,
+  "include_lecture": false,
+  "countdown_seconds": 4,
+  "avatar": {
+    "enabled": true,
+    "position": "left",
+    "lipsync": true
+  },
+  "round": "샘플 1회",
+  "blocks": [
+    {
+      "kind": "problem",
+      "number": 10,
+      "type": "multiple_choice",
+      "question": "계층형 질의(CONNECT BY)에서 계층의 시작점(루트)을 지정하는 절은?",
+      "choices": [
+        "START WITH",
+        "ORDER SIBLINGS BY",
+        "CONNECT BY PRIOR",
+        "GROUP BY"
+      ],
+      "answer": "①",
+      "answer_index": 0,
+      "explanation": "START WITH는 계층 전개의 시작(루트) 조건을 지정한다. CONNECT BY PRIOR는 부모-자식 관계(전개 방향), ORDER SIBLINGS BY는 동일 레벨 정렬을 담당한다.",
+      "explanation_speech": "정답은 1번입니다. 스타트 위드는 계층을 어디서부터 펼칠지, 즉 루트를 지정하는 절이에요. 커넥트 바이 프라이어는 부모와 자식 관계를 정해 전개 방향을 잡고, 오더 시블링스 바이는 같은 레벨끼리의 정렬을 담당합니다.",
+      "difficulty": "상",
+      "tags": [
+        "계층형질의",
+        "CONNECT BY",
+        "2과목"
+      ],
+      "narration": "정답은 일 번, 스타트 위드입니다. 계층형 질의에서 스타트 위드는 계층을 어디서부터 펼칠지 루트를 정하고, 커넥트 바이 프라이어는 부모와 자식의 연결 방향을 잡아요. 오더 시블링스 바이는 같은 레벨 정렬이고요. 시작은 스타트 위드, 연결은 커넥트 바이, 세트로 외우세요."
+    }
+  ]
+}

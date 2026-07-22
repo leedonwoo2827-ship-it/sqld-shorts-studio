@@ -22,6 +22,14 @@ assets/*
 !assets/fonts/
 assets/fonts/*
 !assets/fonts/README.md
+# 아바타 얼굴(제품 자산)은 추적
+!assets/avatar/
+
+# Supertonic-3 모델 (setup.bat 이 HuggingFace에서 다운로드, ~800MB) — 제외
+assets_supertonic/
+
+# 쇼츠 생성 결과/작업물 (보드·음성·영상) — 제외
+out/
 
 # 통합 요약노트 산출물
 _book/

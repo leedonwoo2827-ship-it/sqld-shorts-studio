@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQLD 쇼츠 스튜디오</title>
+<style>
+  body{font-family:'Pretendard','Malgun Gothic',sans-serif;margin:0;background:#f3f6fb;color:#1b2a47}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px 20px}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:#5a6e8c;font-size:14px;margin-bottom:20px}
+  .card{background:#fff;border:1px solid #e2e8f2;border-radius:14px;padding:20px;margin-bottom:18px}
+  label{display:block;font-weight:600;font-size:13px;margin:12px 0 6px}
+  select,button{font-size:15px;padding:10px 12px;border-radius:10px;border:1px solid #cdd8e8;background:#fff}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .row>div{flex:1;min-width:180px}
+  button.go{background:#2563d6;color:#fff;border:none;font-weight:700;padding:13px 26px;cursor:pointer;margin-top:18px}
+  button.go:disabled{background:#9db4dc;cursor:default}
+  #log{background:#0f1b30;color:#c9e0ff;font-family:monospace;font-size:12px;border-radius:10px;padding:12px;height:180px;overflow:auto;white-space:pre-wrap;margin-top:14px}
+  video{width:340px;max-width:100%;border-radius:14px;border:1px solid #d7e0ee;margin-top:8px}
+  .badge{display:inline-block;background:#eaf1fe;color:#2563d6;border-radius:8px;padding:3px 10px;font-size:12px;font-weight:700}
+  .warn{background:#fff7e6;border:1px solid #ffe0a3;color:#8a5a00;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🎬 SQLD 쇼츠 스튜디오</h1>
+  <div class="sub">문제를 골라 [생성]하면 보드 + 음성(Supertonic) + 말하는 아바타(Sonic 립싱크)까지 자동으로 만듭니다. 한 번에 1개씩.</div>
+  <div class="warn">⚠️ 아바타 립싱크는 <b>ComfyUI가 실행 중</b>이어야 하고, 8GB 기준 1편에 <b>수~20분</b> 걸립니다(백그라운드 진행).</div>
+
+  <div class="card">
+    <div class="row">
+      <div><label>문제</label><select id="problem"></select></div>
+      <div><label>강사 얼굴</label><select id="face"></select></div>
+      <div><label>목소리</label><select id="voice"></select></div>
+      <div><label>립싱크 해상도(8GB=384)</label>
+        <select id="res"><option value="384">384 (권장)</option><option value="320">320 (빠름)</option></select></div>
+    </div>
+    <button class="go" id="go">▶ 쇼츠 생성</button>
+    <div id="log">대기 중…</div>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none">
+    <span class="badge">결과</span>
+    <div><video id="vid" controls></video></div>
+    <div id="dl"></div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+async function loadOptions(){
+  const o=await (await fetch('/api/mf/shorts/options')).json();
+  $('problem').innerHTML=o.problems.map(p=>`<option value="${p.no}">문제 ${p.no} — ${p.question}…</option>`).join('');
+  $('face').innerHTML=o.faces.map(c=>`<option value="${c}" ${c==='F2'?'selected':''}>${c}</option>`).join('');
+  $('voice').innerHTML=o.voices.map(c=>`<option value="${c}" ${c==='F2'?'selected':''}>${c}</option>`).join('');
+}
+loadOptions();
+let polling=null;
+$('go').onclick=async()=>{
+  $('go').disabled=true; $('resultCard').style.display='none'; $('log').textContent='요청 전송…\n';
+  const body={problem:+$('problem').value, face:$('face').value, voice:$('voice').value, min_res:+$('res').value};
+  const r=await (await fetch('/api/mf/shorts/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).json();
+  const id=r.job_id;
+  polling=setInterval(async()=>{
+    const j=await (await fetch('/api/mf/shorts/jobs/'+id)).json();
+    $('log').textContent=(j.log||[]).join('\n');
+    $('log').scrollTop=$('log').scrollHeight;
+    if(j.status==='done'){clearInterval(polling); $('go').disabled=false;
+      const f='/api/mf/shorts/file/'+j.result.file+'?t='+Date.now();
+      $('vid').src=f; $('dl').innerHTML=`<a href="${f}" download>⬇ 다운로드 (${j.result.file})</a>`;
+      $('resultCard').style.display='block';}
+    if(j.status==='error'){clearInterval(polling); $('go').disabled=false; $('log').textContent+='\n\n❌ 실패: '+j.error;}
+  },2000);
+};
+</script>
+</body>
+</html>

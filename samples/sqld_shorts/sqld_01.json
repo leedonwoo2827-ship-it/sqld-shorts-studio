@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "kind": "lesson",
+  "format": "shorts",
+  "orientation": "vertical",
+  "chapter": 1,
+  "title": "SQLD 쇼츠 - 문제 1",
+  "subject": "SQLD",
+  "theme": "sqld",
+  "scenes_per_problem": 2,
+  "include_lecture": false,
+  "countdown_seconds": 4,
+  "avatar": {
+    "enabled": true,
+    "position": "left",
+    "lipsync": true
+  },
+  "round": "샘플 1회",
+  "blocks": [
+    {
+      "kind": "problem",
+      "number": 1,
+      "type": "multiple_choice",
+      "question": "정규화(Normalization)를 수행하는 가장 근본적인 목적으로 옳은 것은?",
+      "choices": [
+        "조회 성능을 항상 향상시키기 위해",
+        "데이터 중복을 제거하여 이상현상(Anomaly)을 방지하기 위해",
+        "테이블 개수를 최소화하기 위해",
+        "인덱스를 자동으로 생성하기 위해"
+      ],
+      "answer": "②",
+      "answer_index": 1,
+      "explanation": "정규화는 데이터 중복을 제거해 삽입·갱신·삭제 이상현상을 방지하는 것이 목적이다. 조인 증가로 조회 성능은 오히려 저하될 수 있어 반정규화로 보완한다.",
+      "explanation_speech": "정답은 2번입니다. 정규화의 근본 목적은 데이터 중복을 없애서 삽입, 갱신, 삭제 이상현상을 막는 거예요. 오히려 테이블이 나뉘면 조인이 늘어 조회 성능은 떨어질 수 있고, 이건 반정규화로 보완합니다.",
+      "difficulty": "하",
+      "tags": [
+        "정규화",
+        "1과목"
+      ],
+      "narration": "정답은 이 번입니다. 정규화의 근본 목적은 데이터 중복을 제거해서 삽입, 갱신, 삭제 이상현상을 막는 거예요. 다만 테이블이 나뉘어 조인이 늘면 조회 성능은 떨어질 수 있고, 이건 반정규화로 보완합니다. 중복 제거는 정규화, 성능 보완은 반정규화, 반대 개념으로 기억하세요."
+    }
+  ]
+}

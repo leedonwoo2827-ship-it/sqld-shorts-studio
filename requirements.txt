@@ -14,6 +14,11 @@ lxml>=5.2.0
 # --- slides (문제집/강의 슬라이드 렌더) ---
 Pillow>=10.0        # 텍스트 슬라이드 프레임 렌더. 모션 클립은 ffmpeg 로 합성.
 
+# --- SQLD 쇼츠 말하는-아바타 (talking_shorts) ---
+rembg>=2.0                 # 아바타 배경제거(원형 웹캠). 첫 실행 시 u2net 모델 자동 다운로드.
+opencv-python-headless>=4.9  # 얼굴 인식(원 안 얼굴 크기 정규화)
+# 립싱크는 별도 실행 중인 ComfyUI(Sonic 노드+모델)에 HTTP로 위임. Supertonic 음성은 assets_supertonic/.
+
 # --- 통합 웹앱 (FastAPI) ---
 fastapi>=0.110
 uvicorn[standard]>=0.29

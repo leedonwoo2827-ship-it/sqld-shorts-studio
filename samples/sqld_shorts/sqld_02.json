@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "kind": "lesson",
+  "format": "shorts",
+  "orientation": "vertical",
+  "chapter": 1,
+  "title": "SQLD 쇼츠 - 문제 2",
+  "subject": "SQLD",
+  "theme": "sqld",
+  "scenes_per_problem": 2,
+  "include_lecture": false,
+  "countdown_seconds": 4,
+  "avatar": {
+    "enabled": true,
+    "position": "left",
+    "lipsync": true
+  },
+  "round": "샘플 1회",
+  "blocks": [
+    {
+      "kind": "problem",
+      "number": 2,
+      "type": "multiple_choice",
+      "question": "SELECT 문의 논리적 실행(처리) 순서를 바르게 나열한 것은?",
+      "choices": [
+        "SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY",
+        "FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY",
+        "FROM → GROUP BY → WHERE → HAVING → SELECT → ORDER BY",
+        "WHERE → FROM → GROUP BY → SELECT → HAVING → ORDER BY"
+      ],
+      "answer": "②",
+      "answer_index": 1,
+      "explanation": "SQL의 논리적 처리 순서는 FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY 이다. 작성 순서(SELECT가 맨 앞)와 실행 순서가 다르다는 점이 핵심이다.",
+      "explanation_speech": "정답은 2번입니다. 우리가 쓰는 순서는 SELECT가 맨 앞이지만, 실제 처리 순서는 FROM에서 시작해요. FROM, WHERE, 그룹바이, 해빙, 그다음에야 SELECT, 마지막에 ORDER BY로 정렬합니다. 작성 순서와 실행 순서가 다르다는 게 핵심이에요.",
+      "difficulty": "중",
+      "tags": [
+        "SELECT",
+        "실행순서",
+        "2과목"
+      ],
+      "narration": "정답은 이 번입니다. 쿼리는 셀렉트를 먼저 쓰지만, 실제 실행은 프롬에서 시작해요. 프롬, 웨어, 그룹 바이, 해빙, 셀렉트, 오더 바이 순서죠. 테이블을 정하고 행을 거르고 묶은 뒤, 그룹을 거르고 컬럼을 뽑아 정렬합니다. 작성 순서와 실행 순서가 다르다는 게 핵심이에요."
+    }
+  ]
+}

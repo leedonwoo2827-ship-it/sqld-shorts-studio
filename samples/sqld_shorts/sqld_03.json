@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "kind": "lesson",
+  "format": "shorts",
+  "orientation": "vertical",
+  "chapter": 1,
+  "title": "SQLD 쇼츠 - 문제 3",
+  "subject": "SQLD",
+  "theme": "sqld",
+  "scenes_per_problem": 2,
+  "include_lecture": false,
+  "countdown_seconds": 4,
+  "avatar": {
+    "enabled": true,
+    "position": "left",
+    "lipsync": true
+  },
+  "round": "샘플 1회",
+  "blocks": [
+    {
+      "kind": "problem",
+      "number": 3,
+      "type": "multiple_choice",
+      "question": "WHERE 절과 HAVING 절의 차이에 대한 설명으로 옳지 않은 것은?",
+      "choices": [
+        "WHERE는 그룹화 이전에 개별 행을 필터링한다",
+        "HAVING은 그룹화 이후 그룹을 필터링한다",
+        "집계함수(SUM, COUNT 등)를 이용한 조건은 HAVING에 쓴다",
+        "WHERE 절에서도 집계함수 조건을 자유롭게 사용할 수 있다"
+      ],
+      "answer": "④",
+      "answer_index": 3,
+      "explanation": "집계함수는 그룹화 이후에 계산되므로 WHERE 절에는 쓸 수 없고 HAVING 절에서 사용해야 한다. 나머지는 모두 옳다.",
+      "explanation_speech": "정답은 4번입니다. WHERE는 그룹으로 묶기 전에 개별 행을 거르고, HAVING은 묶은 뒤에 그룹을 걸러요. 그래서 SUM이나 COUNT 같은 집계함수 조건은 WHERE가 아니라 HAVING에 써야 합니다. 4번은 틀린 설명이에요.",
+      "difficulty": "중",
+      "tags": [
+        "GROUP BY",
+        "HAVING",
+        "2과목"
+      ],
+      "narration": "정답은 사 번입니다. 웨어는 그룹으로 묶기 전 개별 행을 거르고, 해빙은 묶은 뒤 그룹을 거릅니다. 그래서 썸이나 카운트 같은 집계함수 조건은 웨어가 아니라 반드시 해빙에 써야 해요. 사 번은 웨어에서도 집계함수를 쓸 수 있다고 해서 틀렸습니다. 집계 조건은 해빙, 기억하세요."
+    }
+  ]
+}

@@ -6,7 +6,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
-$assets = Join-Path $root "assets"
+# Supertonic-3 모델은 assets_supertonic/ 로 받는다 (assets/ 의 아바타·폰트 보존).
+$assets = Join-Path $root "assets_supertonic"
 
 Write-Host "voicewright setup_assets" -ForegroundColor Cyan
 Write-Host ("  repo:   " + $Repo)

@@ -22,12 +22,11 @@ echo [setup] Installing dependencies
 echo [setup] Checking ffmpeg
 where ffmpeg >nul 2>nul || echo [warn] ffmpeg not on PATH. Install: winget install Gyan.FFmpeg
 
-echo [setup] Checking TTS models (assets\onnx)
-if exist "assets\onnx\vocoder.onnx" (
+echo [setup] Checking Supertonic-3 TTS models (assets_supertonic\onnx)
+if exist "assets_supertonic\onnx\vocoder.onnx" (
   echo   models already present - skip.
 ) else (
-  echo   models not found. Downloading from HuggingFace ^(~380MB-1GB, needs git-lfs^).
-  echo   ^(or copy an existing assets folder from another PC and press Ctrl+C^)
+  echo   models not found. Downloading Supertonic-3 from HuggingFace ^(~800MB, needs git-lfs^).
   powershell -ExecutionPolicy Bypass -File "scripts\setup_assets.ps1"
 )
 

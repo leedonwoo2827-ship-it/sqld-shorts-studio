@@ -19,6 +19,7 @@ set "PORT=8830"
 
 set "PYTHONPATH=%~dp0;%PYTHONPATH%"
 echo [run] Open http://localhost:%PORT% in your browser  (close this window to stop)
+echo [run] SQLD 말하는-아바타 쇼츠: http://localhost:%PORT%/shorts  (ComfyUI 'shorts' 인스턴스 먼저 실행)
 
 start "" http://localhost:%PORT%
 

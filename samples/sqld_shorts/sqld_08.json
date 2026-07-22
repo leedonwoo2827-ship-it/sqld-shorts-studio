@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "kind": "lesson",
+  "format": "shorts",
+  "orientation": "vertical",
+  "chapter": 1,
+  "title": "SQLD 쇼츠 - 문제 8",
+  "subject": "SQLD",
+  "theme": "sqld",
+  "scenes_per_problem": 2,
+  "include_lecture": false,
+  "countdown_seconds": 4,
+  "avatar": {
+    "enabled": true,
+    "position": "left",
+    "lipsync": true
+  },
+  "round": "샘플 1회",
+  "blocks": [
+    {
+      "kind": "problem",
+      "number": 8,
+      "type": "multiple_choice",
+      "question": "기본키(PRIMARY KEY)와 UNIQUE 제약조건의 차이로 옳은 것은?",
+      "choices": [
+        "PK는 NULL을 허용하지만 UNIQUE는 허용하지 않는다",
+        "PK는 테이블에 여러 개 지정할 수 있다",
+        "PK는 NULL을 허용하지 않지만 UNIQUE는 NULL을 허용한다",
+        "UNIQUE 제약은 중복 값을 허용한다"
+      ],
+      "answer": "③",
+      "answer_index": 2,
+      "explanation": "PK는 유일성 + NOT NULL을 모두 만족해야 하며 테이블당 하나만 존재한다. UNIQUE는 유일성만 보장하고 NULL은 허용한다(중복 값은 불가).",
+      "explanation_speech": "정답은 3번입니다. 기본키는 유일해야 하고 NULL도 허용하지 않으며 테이블에 하나만 둘 수 있어요. 반면 유니크 제약은 값이 유일하기만 하면 되고 NULL은 허용합니다. 대신 둘 다 중복 값은 넣을 수 없어요.",
+      "difficulty": "중",
+      "tags": [
+        "제약조건",
+        "기본키",
+        "2과목"
+      ],
+      "narration": "정답은 삼 번입니다. 기본키와 유니크는 둘 다 값이 유일해야 하지만, 차이는 널 허용 여부예요. 기본키는 널을 허용하지 않고 테이블에 하나만 두지만, 유니크는 널을 허용합니다. 그래서 삼 번이 정답이에요. 기본키는 유일성에 낫널까지, 유니크는 유일성만, 이렇게 기억하세요."
+    }
+  ]
+}

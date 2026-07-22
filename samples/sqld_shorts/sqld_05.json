@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "kind": "lesson",
+  "format": "shorts",
+  "orientation": "vertical",
+  "chapter": 1,
+  "title": "SQLD 쇼츠 - 문제 5",
+  "subject": "SQLD",
+  "theme": "sqld",
+  "scenes_per_problem": 2,
+  "include_lecture": false,
+  "countdown_seconds": 4,
+  "avatar": {
+    "enabled": true,
+    "position": "left",
+    "lipsync": true
+  },
+  "round": "샘플 1회",
+  "blocks": [
+    {
+      "kind": "problem",
+      "number": 5,
+      "type": "multiple_choice",
+      "question": "UNION 과 UNION ALL 에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "UNION은 중복 행을 제거하지 않는다",
+        "UNION ALL은 중복 행을 제거한 뒤 결과를 정렬한다",
+        "UNION은 중복을 제거하며 정렬 작업이 수반되어 UNION ALL보다 느릴 수 있다",
+        "두 연산자 모두 SELECT 컬럼의 개수가 달라도 사용할 수 있다"
+      ],
+      "answer": "③",
+      "answer_index": 2,
+      "explanation": "UNION은 중복을 제거하기 위해 정렬(Sort/Unique) 작업이 필요해 UNION ALL보다 느릴 수 있다. UNION ALL은 중복을 그대로 두고 정렬하지 않는다. 두 연산 모두 컬럼 개수·타입이 호환되어야 한다.",
+      "explanation_speech": "정답은 3번입니다. 유니온은 중복을 없애려고 내부적으로 정렬을 하기 때문에 유니온 올보다 느릴 수 있어요. 유니온 올은 중복을 그대로 두고 정렬도 하지 않습니다. 그리고 둘 다 셀렉트 컬럼의 개수와 타입이 맞아야 쓸 수 있어요.",
+      "difficulty": "중",
+      "tags": [
+        "집합연산자",
+        "UNION",
+        "2과목"
+      ],
+      "narration": "정답은 삼 번입니다. 유니온은 두 결과를 합치며 중복을 제거하는데, 이때 정렬이 일어나 유니온 올보다 느릴 수 있어요. 유니온 올은 중복을 그대로 두고 정렬도 안 해서 더 빠릅니다. 둘 다 컬럼 개수와 타입이 맞아야 하고요. 중복 제거는 유니온, 속도는 유니온 올입니다."
+    }
+  ]
+}

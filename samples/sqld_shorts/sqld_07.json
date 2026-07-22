@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "kind": "lesson",
+  "format": "shorts",
+  "orientation": "vertical",
+  "chapter": 1,
+  "title": "SQLD 쇼츠 - 문제 7",
+  "subject": "SQLD",
+  "theme": "sqld",
+  "scenes_per_problem": 2,
+  "include_lecture": false,
+  "countdown_seconds": 4,
+  "avatar": {
+    "enabled": true,
+    "position": "left",
+    "lipsync": true
+  },
+  "round": "샘플 1회",
+  "blocks": [
+    {
+      "kind": "problem",
+      "number": 7,
+      "type": "multiple_choice",
+      "question": "다음 중 성격이 다른 SQL 명령어는?",
+      "choices": [
+        "INSERT",
+        "UPDATE",
+        "DELETE",
+        "TRUNCATE"
+      ],
+      "answer": "④",
+      "answer_index": 3,
+      "explanation": "INSERT·UPDATE·DELETE는 DML이지만 TRUNCATE는 DDL이다. TRUNCATE는 Auto Commit되어 ROLLBACK으로 되돌릴 수 없고, DELETE는 트랜잭션 제어가 가능하다.",
+      "explanation_speech": "정답은 4번입니다. 인서트, 업데이트, 딜리트는 데이터를 다루는 DML이지만, 트렁케이트는 DDL이에요. 그래서 트렁케이트는 자동 커밋되어 롤백으로 되돌릴 수 없고, 딜리트는 트랜잭션으로 취소할 수 있다는 점이 다릅니다.",
+      "difficulty": "중",
+      "tags": [
+        "DDL",
+        "DML",
+        "TRUNCATE",
+        "2과목"
+      ],
+      "narration": "정답은 사 번, 트렁케이트입니다. 인서트, 업데이트, 딜리트는 데이터를 다루는 디엠엘이지만, 트렁케이트는 구조를 다루는 디디엘이에요. 트렁케이트는 자동 커밋되어 롤백으로 못 되돌리고, 딜리트는 트랜잭션으로 되돌릴 수 있죠. 빠르게 비우면 트렁케이트, 되돌리려면 딜리트입니다."
+    }
+  ]
+}

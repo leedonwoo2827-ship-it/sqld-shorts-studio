@@ -16,7 +16,9 @@ ROOT = Path(__file__).resolve().parents[1]
 # voicewright settings 가 읽을 경로를 mediaforge 기준으로 고정 (import 전에).
 os.environ.setdefault("VOICEWRIGHT_VOICE_MAP", str(ROOT / "config" / "voice_map.yaml"))
 os.environ.setdefault("VOICEWRIGHT_PRONUNCIATION_MAP", str(ROOT / "config" / "pronunciation_map.yaml"))
-os.environ.setdefault("VOICEWRIGHT_ASSETS_DIR", str(ROOT / "assets"))
+# Supertonic-3 모델은 assets_supertonic/ 에 있음(assets/ 는 아바타·폰트 보존).
+_st = ROOT / "assets_supertonic"
+os.environ.setdefault("VOICEWRIGHT_ASSETS_DIR", str(_st if _st.exists() else ROOT / "assets"))
 os.environ.setdefault("VOICEWRIGHT_WORKSPACE", os.environ.get("MF_OUTPUT_DIR") or str(ROOT / "munje"))
 
 import logging  # noqa: E402
@@ -42,13 +44,19 @@ def create_app() -> FastAPI:
     # /api/synthesize_scene 등 (발음사전 편집·미리듣기). 번들 파이프라인은 /api/mf.
     from voicewright.server.routes_api import router as vw_api
     from .routes_pipeline import router as mf_router
+    from .routes_shorts import router as shorts_router
 
     app.include_router(vw_api, prefix="/api", tags=["voicewright"])
     app.include_router(mf_router, prefix="/api/mf", tags=["mediaforge"])
+    app.include_router(shorts_router, prefix="/api/mf", tags=["shorts"])
 
     @app.get("/", response_class=HTMLResponse)
     async def index() -> str:
         return (MF_TEMPLATES / "index.html").read_text(encoding="utf-8")
+
+    @app.get("/shorts", response_class=HTMLResponse)
+    async def shorts_page() -> str:
+        return (MF_TEMPLATES / "shorts.html").read_text(encoding="utf-8")
 
     @app.get("/dict", response_class=HTMLResponse)
     async def dict_page() -> str:

@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "kind": "lesson",
+  "format": "shorts",
+  "orientation": "vertical",
+  "chapter": 1,
+  "title": "SQLD 쇼츠 - 문제 6",
+  "subject": "SQLD",
+  "theme": "sqld",
+  "scenes_per_problem": 2,
+  "include_lecture": false,
+  "countdown_seconds": 4,
+  "avatar": {
+    "enabled": true,
+    "position": "left",
+    "lipsync": true
+  },
+  "round": "샘플 1회",
+  "blocks": [
+    {
+      "kind": "problem",
+      "number": 6,
+      "type": "multiple_choice",
+      "question": "다중행(multiple-row) 서브쿼리에 사용할 수 없는 연산자는?",
+      "choices": [
+        "IN",
+        "ANY",
+        "ALL",
+        "="
+      ],
+      "answer": "④",
+      "answer_index": 3,
+      "explanation": "'='는 단일행 서브쿼리 연산자이다. 서브쿼리가 여러 행을 반환하면 IN, ANY, ALL, EXISTS 같은 다중행 연산자를 써야 하며 '='를 쓰면 오류가 난다.",
+      "explanation_speech": "정답은 4번입니다. 등호는 결과가 딱 한 행일 때 쓰는 단일행 연산자예요. 서브쿼리가 여러 행을 돌려주면 IN, ANY, ALL 같은 다중행 연산자를 써야 하고, 등호를 쓰면 오류가 납니다.",
+      "difficulty": "중",
+      "tags": [
+        "서브쿼리",
+        "다중행연산자",
+        "2과목"
+      ],
+      "narration": "정답은 사 번, 등호입니다. 서브쿼리 결과가 한 줄이면 등호 같은 단일행 연산자를 쓰지만, 여러 줄이면 인, 애니, 올 같은 다중행 연산자를 써야 해요. 여러 줄인데 등호를 쓰면 오류가 납니다. 서브쿼리가 몇 줄을 주는지 먼저 보고, 여러 행이면 인, 애니, 올을 기억하세요."
+    }
+  ]
+}

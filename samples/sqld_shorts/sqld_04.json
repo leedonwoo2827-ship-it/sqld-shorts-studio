@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "kind": "lesson",
+  "format": "shorts",
+  "orientation": "vertical",
+  "chapter": 1,
+  "title": "SQLD 쇼츠 - 문제 4",
+  "subject": "SQLD",
+  "theme": "sqld",
+  "scenes_per_problem": 2,
+  "include_lecture": false,
+  "countdown_seconds": 4,
+  "avatar": {
+    "enabled": true,
+    "position": "left",
+    "lipsync": true
+  },
+  "round": "샘플 1회",
+  "blocks": [
+    {
+      "kind": "problem",
+      "number": 4,
+      "type": "multiple_choice",
+      "question": "NULL 값에 대한 설명으로 옳지 않은 것은?",
+      "choices": [
+        "숫자 컬럼 값이 NULL일 때 그 값에 100을 더하면 결과는 NULL이다",
+        "NVL(급여, 0)은 급여가 NULL이면 0을 반환한다",
+        "COUNT(*)는 NULL이 포함된 행도 세지만 COUNT(컬럼)은 NULL을 제외한다",
+        "NULL은 0 또는 공백 문자와 동일하게 취급된다"
+      ],
+      "answer": "④",
+      "answer_index": 3,
+      "explanation": "NULL은 '값이 정해지지 않음'을 의미하며 0이나 공백과 다르다. NULL과의 산술연산 결과는 NULL이고, COUNT(*)와 COUNT(컬럼)의 NULL 처리도 서로 다르다.",
+      "explanation_speech": "정답은 4번입니다. NULL은 값이 아예 정해지지 않았다는 뜻이라, 0이나 공백과는 전혀 달라요. 그래서 NULL에 숫자를 더해도 결과는 NULL이고, 카운트 스타는 전체 행을, 카운트 컬럼은 NULL을 뺀 행을 셉니다. 4번이 틀린 설명이에요.",
+      "difficulty": "중",
+      "tags": [
+        "NULL",
+        "NVL",
+        "2과목"
+      ],
+      "narration": "정답은 사 번입니다. 널은 값이 없는 게 아니라 아직 정해지지 않았다는 뜻이라, 영이나 공백과는 완전히 달라요. 그래서 숫자에 널을 더하면 결과도 널이 되고, 카운트 스타는 널 행도 세지만 카운트 컬럼은 널을 뺍니다. 사 번은 널을 영이나 공백과 같다고 해서 틀린 설명입니다."
+    }
+  ]
+}
