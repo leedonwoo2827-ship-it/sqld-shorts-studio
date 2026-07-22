@@ -65,9 +65,13 @@
   <div class="grid">
     <div class="card">
       <div class="step">STEP 1 · 문제</div>
-      <h3>문제 고르기</h3>
-      <div class="desc">samples/sqld_shorts 의 문제 중 하나. (대본·정답·해설은 JSON에 들어있음)</div>
-      <label>문제</label><select id="problem"></select>
+      <h3>문제 JSON 첨부</h3>
+      <div class="desc">과목별 문제 JSON을 첨부하세요. (blocks 안의 problem 들을 자동 인식) · 테스트용 샘플도 불러올 수 있어요.</div>
+      <label>① JSON 파일 첨부</label>
+      <input type="file" id="jsonfile" accept=".json,application/json" style="width:100%;font-size:14px">
+      <label>또는 · 테스트 샘플 불러오기</label>
+      <select id="sample"><option value="">— 샘플 선택 —</option></select>
+      <label>문제 (첨부한 JSON 안에서)</label><select id="problem"><option value="">먼저 JSON을 첨부하세요</option></select>
       <label>미리보기</label><div class="qbox" id="qprev">—</div>
     </div>
     <div class="card">
@@ -98,22 +102,46 @@
 
 <script>
 const $=id=>document.getElementById(id);
-let PROB=[];
+let PROBS=[], SUBJECT='SQLD';
 async function loadOptions(){
-  const o=await (await fetch('/api/mf/shorts/options')).json(); PROB=o.problems;
-  $('problem').innerHTML=o.problems.map(p=>`<option value="${p.no}">문제 ${p.no}</option>`).join('');
+  const o=await (await fetch('/api/mf/shorts/options')).json();
   $('face').innerHTML=o.faces.map(c=>`<option value="${c}" ${c==='F2'?'selected':''}>${c}</option>`).join('');
   $('voice').innerHTML=o.voices.map(c=>`<option value="${c}" ${c==='F2'?'selected':''}>${c}</option>`).join('');
+  $('sample').innerHTML='<option value="">— 샘플 선택 —</option>'+o.samples.map(s=>`<option value="${s}">${s}</option>`).join('');
+}
+loadOptions();
+
+function loadProblems(data, srcName){
+  SUBJECT = data.subject || 'SQLD';
+  let probs = Array.isArray(data.blocks) ? data.blocks.filter(b=>b.kind==='problem' || b.question)
+            : (data.question ? [data] : []);
+  if(!probs.length){ alert('JSON에서 문제(problem/question)를 찾지 못했습니다.'); return; }
+  PROBS = probs;
+  $('problem').innerHTML = probs.map((p,i)=>`<option value="${i}">문제 ${p.number ?? (i+1)} — ${(p.question||'').slice(0,30)}…</option>`).join('');
   showPrev();
 }
-function showPrev(){const p=PROB.find(x=>x.no==+$('problem').value); $('qprev').textContent=p?p.question+'…':'—';}
+$('jsonfile').addEventListener('change', e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=()=>{ try{ loadProblems(JSON.parse(r.result), f.name); }catch(err){ alert('JSON 파싱 오류: '+err); } }; r.readAsText(f,'utf-8');
+});
+$('sample').addEventListener('change', async e=>{
+  if(!e.target.value) return;
+  const data=await (await fetch('/api/mf/shorts/sample/'+e.target.value)).json();
+  loadProblems(data, e.target.value);
+});
+function showPrev(){const p=PROBS[+$('problem').value]; $('qprev').textContent=p?(p.question+'…'):'—';}
 $('problem').addEventListener('change',showPrev);
-loadOptions();
+
 let polling=null;
 $('go').onclick=async()=>{
+  const p=PROBS[+$('problem').value];
+  if(!p){ alert('먼저 문제 JSON을 첨부(또는 샘플 불러오기)하고 문제를 선택하세요.'); return; }
   $('go').disabled=true; $('resultCard').style.display='none'; $('log').textContent='요청 전송…\n';
-  const body={problem:+$('problem').value, face:$('face').value, voice:$('voice').value, min_res:+$('res').value};
+  const num=String(p.number ?? (+$('problem').value+1)).padStart(4,'0');
+  const label=`${(SUBJECT||'sqld').toLowerCase()}_${num}_${$('face').value}_${$('voice').value}`;
+  const body={problem:p, subject:SUBJECT, label, face:$('face').value, voice:$('voice').value, min_res:+$('res').value};
   const r=await (await fetch('/api/mf/shorts/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).json();
+  if(!r.job_id){ $('log').textContent+='\n요청 실패'; $('go').disabled=false; return; }
   polling=setInterval(async()=>{
     const j=await (await fetch('/api/mf/shorts/jobs/'+r.job_id)).json();
     $('log').textContent=(j.log||[]).join('\n'); $('log').scrollTop=$('log').scrollHeight;
