@@ -13,7 +13,7 @@ while [ $# -gt 0 ]; do
 done
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-ASSETS="$ROOT/assets"
+ASSETS="$ROOT/assets_supertonic"
 
 echo "voicewright setup_assets"
 echo "  repo:   $REPO"

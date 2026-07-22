@@ -88,7 +88,24 @@ ComfyUI 노드 화면 우측 상단 **[확장 프로그램 관리]** 클릭 → 
 | Wav2Lip Node | 사진 1장 불가(**영상 입력 필요**) — Sonic 실패 시 예비 |
 
 ### (예비) Sonic이 VRAM 부족(OOM)이면
-- 해상도/프레임 낮춰 재시도, 또는 **Wav2Lip Node** + 아바타 정지영상(루프) 조합으로 폴백.
+- **min_resolution 384**로 사용(8GB 기준). 512는 OOM. inference_steps 20~25.
+- 그래도 부족하면 320으로 낮추거나, Wav2Lip Node + 아바타 정지영상(루프) 폴백.
+
+### 🔑 Sonic 필수 모델 (수동 배치 — 없으면 "Please download the model first")
+git-lfs 설치 후, HuggingFace **[Sean-Bradley/ComfyUI](https://huggingface.co/Sean-Bradley/ComfyUI)** 에서 받아
+아래 구조로 넣는다. (`<ComfyUI>` = Comfy Desktop 설치의 ...\ComfyUI-Installs\shorts\ComfyUI)
+```
+<ComfyUI>/models/
+├── checkpoints/
+│   └── svd.safetensors                      # SVD 백본 (~9.5GB, Sean-Bradley/ComfyUI/models/checkpoints)
+│   └── RealVisXL_V5.0_fp16.safetensors      # (선택) 강사 얼굴 생성용, HF: SG161222/RealVisXL_V5.0
+└── sonic/                                    # HF: Sean-Bradley/ComfyUI/models/sonic
+    ├── audio2bucket.pth   audio2token.pth   unet.pth(6.3GB)   face_yolov8m.pt
+    ├── whisper-tiny/  (config.json, model.safetensors, preprocessor_config.json)
+    └── RIFE/flownet.pkl
+```
+> ⚠️ **경로 주의**: Comfy Desktop은 **input/output을 `...\ComfyUI-Shared\`** 에서 읽는다(모델은 위 install 경로).
+> LoadImage/LoadAudio 는 Shared/input 에 파일이 있어야 인식(우리 파이프라인이 자동 복사).
 
 ---
 
