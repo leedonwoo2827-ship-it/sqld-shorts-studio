@@ -96,14 +96,21 @@ def render_board(problem: dict, subject: str = "SQLD") -> "object":
 
 # ============================ 2) Supertonic TTS ============================
 def tts_supertonic(text: str, voice: str, out_wav: Path, log: Log | None = None) -> Path:
-    env = dict(os.environ)
-    env.setdefault("VOICEWRIGHT_ASSETS_DIR", str(ROOT / "assets_supertonic"))
+    """CLI(typer) 대신 엔진을 인프로세스로 직접 호출(빠르고 의존성 적음)."""
+    import asyncio
+    os.environ.setdefault("VOICEWRIGHT_ASSETS_DIR", str(ROOT / "assets_supertonic"))
+    from voicewright.engine import Engine
+    from voicewright.audio_io import write_wav
     _log(log, f"[TTS] Supertonic {voice} 합성…")
-    r = subprocess.run([sys.executable, "-m", "voicewright", "synth", text,
-                        "--voice", voice, "--out", str(out_wav)],
-                       cwd=str(ROOT), env=env, capture_output=True, text=True)
+
+    async def _synth():
+        eng = await Engine.get()
+        wav = await eng.synth(text, voice_code=voice, lang="ko", total_step=8, speed=1.0)
+        write_wav(out_wav, wav, eng.sample_rate)
+
+    asyncio.run(_synth())
     if not out_wav.exists():
-        raise RuntimeError(f"TTS 실패: {r.stderr[-400:]}")
+        raise RuntimeError("TTS 산출 파일이 없습니다")
     return out_wav
 
 
