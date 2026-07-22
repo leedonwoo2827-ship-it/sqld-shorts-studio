@@ -102,7 +102,7 @@
 
 <script>
 const $=id=>document.getElementById(id);
-let PROBS=[], SUBJECT='SQLD';
+let PROBS=[], SUBJECT='SQLD';   // 강사 코드: 남 M1~M5 / 여 F1~F5
 async function loadOptions(){
   const o=await (await fetch('/api/mf/shorts/options')).json();
   $('face').innerHTML=o.faces.map(c=>`<option value="${c}" ${c==='F2'?'selected':''}>${c}</option>`).join('');
@@ -118,8 +118,8 @@ function loadProblems(data, srcName){
   if(!probs.length){ alert('JSON에서 문제(problem/question)를 찾지 못했습니다.'); return; }
   PROBS = probs;
   $('problem').innerHTML = probs.map((p,i)=>`<option value="${i}">문제 ${p.number ?? (i+1)} — ${(p.question||'').slice(0,30)}…</option>`).join('');
-  // 파일명 뒤쪽 _{얼굴}_{목소리} 자동 인식 (예: sqld_0001_F2_F2.json)
-  const m=(srcName||'').match(/_([MF][1-5])_([MF][1-5])(?:\.json)?$/i);
+  // 파일명 뒤쪽 _{얼굴}_{목소리} 자동 인식 (예: sqld_0007_f2_f2.json → F2·F2)
+  const m=(srcName||'').match(/_([mfMF][1-5])_([mfMF][1-5])(?:\.json)?$/i);
   if(m){ $('face').value=m[1].toUpperCase(); $('voice').value=m[2].toUpperCase(); }
   showPrev();
 }
@@ -141,7 +141,7 @@ $('go').onclick=async()=>{
   if(!p){ alert('먼저 문제 JSON을 첨부(또는 샘플 불러오기)하고 문제를 선택하세요.'); return; }
   $('go').disabled=true; $('resultCard').style.display='none'; $('log').textContent='요청 전송…\n';
   const num=String(p.number ?? (+$('problem').value+1)).padStart(4,'0');
-  const label=`${(SUBJECT||'sqld').toLowerCase()}_${num}_${$('face').value}_${$('voice').value}`;
+  const label=`${(SUBJECT||'sqld').toLowerCase()}_${num}_${$('face').value.toLowerCase()}_${$('voice').value.toLowerCase()}`;
   const body={problem:p, subject:SUBJECT, label, face:$('face').value, voice:$('voice').value, min_res:+$('res').value};
   const r=await (await fetch('/api/mf/shorts/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).json();
   if(!r.job_id){ $('log').textContent+='\n요청 실패'; $('go').disabled=false; return; }

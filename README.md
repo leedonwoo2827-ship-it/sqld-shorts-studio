@@ -28,7 +28,7 @@
 ## 📱 SQLD 쇼츠(세로 9:16) + 말하는 아바타
 
 유튜브 쇼츠용 **세로 영상**을 **좌측 말하는 아바타 / 해설 상단·정답 하단** 레이아웃으로 생성.
-쇼츠는 **한 문제 = 한 파일 = 한 영상**. SQLD 실전 샘플: `samples/sqld_shorts/sqld_0001_F2_F2.json … sqld_0010_F2_F2.json`.
+쇼츠는 **한 문제 = 한 파일 = 한 영상**. SQLD 실전 샘플: `samples/sqld_shorts/sqld_0001_m1_m1.json … sqld_0010_f5_f5.json`.
 
 - 지금 바로(정지 아바타·무음, 폴더 일괄): `python scripts/make_shorts.py samples/sqld_shorts -o out/shorts`
 - **설치·연동 방법(ComfyUI Desktop + 립싱크): 👉 [docs/SHORTS_AVATAR.md](docs/SHORTS_AVATAR.md)**
