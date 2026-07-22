@@ -78,14 +78,11 @@
       <div class="desc">얼굴 10종(M1~F5)과 Supertonic3 음성 10종. 코드가 같으면 톤이 매칭됩니다(예 F2↔F2).</div>
       <label>강사 얼굴</label><select id="face"></select>
       <label>목소리(Supertonic3)</label><select id="voice"></select>
-      <label>립싱크 해상도 (높을수록 입모양↑·느림·OOM위험)</label>
+      <label>립싱크 해상도 (RTX 4070 8GB 기준)</label>
       <select id="res">
         <option value="320">320 · 가장 빠름</option>
-        <option value="384" selected>384 · 8GB 안정(권장)</option>
-        <option value="448">448 · 입모양 개선(8GB 빠듯)</option>
-        <option value="512">512 · 더 선명(OOM 위험)</option>
-        <option value="576">576 · 고품질(OOM 가능성 큼)</option>
-        <option value="640">640 · 최고품질(대개 8GB 초과)</option>
+        <option value="384" selected>384 · 안정(권장)</option>
+        <option value="448">448 · 입모양 개선(이 PC 최대)</option>
       </select>
       <button class="go" id="go" style="margin-top:16px">▶ 쇼츠 생성</button>
     </div>
