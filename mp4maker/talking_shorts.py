@@ -251,8 +251,9 @@ def build_talking_short(problem: dict, *, face_code: str, voice_code: str,
     # 5) 조립(+음성)
     _log(log, "[합성] 인코딩")
     r = subprocess.run(["ffmpeg", "-y", "-framerate", "25", "-i", str(of / "F_%04d.png"),
-                        "-i", str(wav), "-c:v", "libx264", "-pix_fmt", "yuv420p",
-                        "-c:a", "aac", "-b:a", "192k", "-shortest", str(out_mp4)],
+                        "-i", str(wav), "-c:v", "libx264", "-crf", "18", "-preset", "medium",
+                        "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
+                        "-shortest", str(out_mp4)],
                        capture_output=True, text=True)
     if r.returncode != 0 or not out_mp4.exists():
         raise RuntimeError(f"ffmpeg 합성 실패: {r.stderr[-400:]}")
