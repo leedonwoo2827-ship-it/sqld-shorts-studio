@@ -52,11 +52,16 @@ def create_app() -> FastAPI:
 
     @app.get("/", response_class=HTMLResponse)
     async def index() -> str:
-        return (MF_TEMPLATES / "index.html").read_text(encoding="utf-8")
+        # 메인 = SQLD 쇼츠 스튜디오. (구 mujejip 문제집·요약노트 UI는 /studio 에 보존)
+        return (MF_TEMPLATES / "shorts.html").read_text(encoding="utf-8")
 
     @app.get("/shorts", response_class=HTMLResponse)
     async def shorts_page() -> str:
         return (MF_TEMPLATES / "shorts.html").read_text(encoding="utf-8")
+
+    @app.get("/studio", response_class=HTMLResponse)
+    async def legacy_studio() -> str:
+        return (MF_TEMPLATES / "index.html").read_text(encoding="utf-8")
 
     @app.get("/dict", response_class=HTMLResponse)
     async def dict_page() -> str:
