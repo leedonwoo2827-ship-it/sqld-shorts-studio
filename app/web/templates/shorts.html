@@ -118,6 +118,9 @@ function loadProblems(data, srcName){
   if(!probs.length){ alert('JSON에서 문제(problem/question)를 찾지 못했습니다.'); return; }
   PROBS = probs;
   $('problem').innerHTML = probs.map((p,i)=>`<option value="${i}">문제 ${p.number ?? (i+1)} — ${(p.question||'').slice(0,30)}…</option>`).join('');
+  // 파일명 뒤쪽 _{얼굴}_{목소리} 자동 인식 (예: sqld_0001_F2_F2.json)
+  const m=(srcName||'').match(/_([MF][1-5])_([MF][1-5])(?:\.json)?$/i);
+  if(m){ $('face').value=m[1].toUpperCase(); $('voice').value=m[2].toUpperCase(); }
   showPrev();
 }
 $('jsonfile').addEventListener('change', e=>{

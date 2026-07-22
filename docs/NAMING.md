@@ -4,8 +4,9 @@
 
 ## 문제 JSON (입력)
 ```
-{과목}_{문제번호 4자리}.json      예) sqld_0001.json
+{과목}_{문제번호4자리}_{얼굴}_{목소리}.json   예) sqld_0001_F2_F2.json
 ```
+- **파일명 뒤 `_F2_F2`** = 이 문제를 진행할 강사(얼굴·목소리). 웹에서 첨부하면 **자동 선택**됨.
 - **한 파일 = 한 문제** (JSON 안 `blocks` 에 problem 1개). 여러 문제를 한 파일에 담아도(blocks 여러 개) 웹에서 자동 인식.
 - 과목 접두사(sqld/…)라 앞자리 0 걱정 없음. 과목만 바꾸면 어떤 자격증에도 적용.
 - 필드: `question, choices[], answer, answer_index, explanation, narration(낭독 대본, 숫자는 "이 번"처럼 한글), difficulty, tags[]`
