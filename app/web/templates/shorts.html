@@ -67,10 +67,8 @@
       <div class="step">STEP 1 · 문제</div>
       <h3>문제 JSON 첨부</h3>
       <div class="desc">과목별 문제 JSON을 첨부하세요. (blocks 안의 problem 들을 자동 인식) · 테스트용 샘플도 불러올 수 있어요.</div>
-      <label>① JSON 파일 첨부</label>
+      <label>JSON 파일 첨부</label>
       <input type="file" id="jsonfile" accept=".json,application/json" style="width:100%;font-size:14px">
-      <label>또는 · 테스트 샘플 불러오기</label>
-      <select id="sample"><option value="">— 샘플 선택 —</option></select>
       <label>문제 (첨부한 JSON 안에서)</label><select id="problem"><option value="">먼저 JSON을 첨부하세요</option></select>
       <label>미리보기</label><div class="qbox" id="qprev">—</div>
     </div>
@@ -107,7 +105,6 @@ async function loadOptions(){
   const o=await (await fetch('/api/mf/shorts/options')).json();
   $('face').innerHTML=o.faces.map(c=>`<option value="${c}" ${c==='F2'?'selected':''}>${c}</option>`).join('');
   $('voice').innerHTML=o.voices.map(c=>`<option value="${c}" ${c==='F2'?'selected':''}>${c}</option>`).join('');
-  $('sample').innerHTML='<option value="">— 샘플 선택 —</option>'+o.samples.map(s=>`<option value="${s}">${s}</option>`).join('');
 }
 loadOptions();
 
@@ -126,11 +123,6 @@ function loadProblems(data, srcName){
 $('jsonfile').addEventListener('change', e=>{
   const f=e.target.files[0]; if(!f) return;
   const r=new FileReader(); r.onload=()=>{ try{ loadProblems(JSON.parse(r.result), f.name); }catch(err){ alert('JSON 파싱 오류: '+err); } }; r.readAsText(f,'utf-8');
-});
-$('sample').addEventListener('change', async e=>{
-  if(!e.target.value) return;
-  const data=await (await fetch('/api/mf/shorts/sample/'+e.target.value)).json();
-  loadProblems(data, e.target.value);
 });
 function showPrev(){const p=PROBS[+$('problem').value]; $('qprev').textContent=p?(p.question+'…'):'—';}
 $('problem').addEventListener('change',showPrev);
