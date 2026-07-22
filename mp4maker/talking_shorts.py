@@ -156,8 +156,16 @@ def sonic_lipsync(face_png: Path, audio: Path, out_dir: Path, *, min_res: int = 
         time.sleep(3)
         new = set((outp).glob("ts_lip*.mp4")) - before
         if new:
-            time.sleep(2)
-            return max(new, key=lambda p: p.stat().st_mtime)
+            clip = max(new, key=lambda p: p.stat().st_mtime)
+            # ComfyUI가 아직 파일을 쓰는 중일 수 있으니 크기가 안정될 때까지 대기
+            last = -1
+            for _ in range(40):
+                sz = clip.stat().st_size
+                if sz > 0 and sz == last:
+                    break
+                last = sz
+                time.sleep(1)
+            return clip
         try:
             h = json.load(urllib.request.urlopen(f"{COMFY}/history/{pid}", timeout=10))
             if pid in h and h[pid].get("status", {}).get("status_str") == "error":
@@ -213,7 +221,10 @@ def build_talking_short(problem: dict, *, face_code: str, voice_code: str,
     fr = workdir / "frames"; fr.mkdir(exist_ok=True)
     for p in fr.glob("*.png"):
         p.unlink()
-    subprocess.run(["ffmpeg", "-y", "-i", str(clip), "-r", "25", str(fr / "f_%04d.png")], capture_output=True)
+    ex = subprocess.run(["ffmpeg", "-y", "-i", str(clip), "-r", "25", str(fr / "f_%04d.png")],
+                        capture_output=True, text=True)
+    if not sorted(fr.glob("f_*.png")):
+        raise RuntimeError(f"립싱크 프레임 추출 실패(0장). clip={clip}\nffmpeg: {(ex.stderr or '')[-500:]}")
     sess = new_session("u2net_human_seg")
     cm = Image.new("L", (D * 3, D * 3), 0); ImageDraw.Draw(cm).ellipse((0, 0, D * 3, D * 3), fill=255)
     cm = cm.resize((D, D), Image.LANCZOS)
